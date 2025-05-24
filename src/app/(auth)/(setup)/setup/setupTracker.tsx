@@ -1,9 +1,6 @@
 import * as React from 'react';
-import {Step, StepButton, stepClasses, StepIndicator, stepIndicatorClasses, Stepper} from "@mui/joy";
-import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import {Step, StepIndicator, Stepper} from "@mui/joy";
 import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
-import Typography from '@mui/joy/Typography';
-import {useMemo} from "react";
 import { Check } from '@mui/icons-material';
 
 
