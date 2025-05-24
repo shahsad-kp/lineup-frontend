@@ -1,6 +1,8 @@
 import type {Metadata} from "next";
 import "./globals.css";
 import React from "react";
+import Head from "next/head";
+import {Meta} from "next/dist/lib/metadata/generate/meta";
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -16,6 +18,9 @@ export default function RootLayout(
 ) {
     return (
         <html lang="en">
+        <Head>
+            <Meta name="viewport" content="initial-scale=1, width=device-width" />
+        </Head>
         <body>
         {children}
         </body>
