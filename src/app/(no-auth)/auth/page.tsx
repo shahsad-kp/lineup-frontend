@@ -175,18 +175,6 @@ export default function Page() {
         const handleMessage = (event: MessageEvent<{ code: string, provider: string }>) => {
             if (event.origin !== window.location.origin || !event.data.provider || event.data.provider !== 'google') return;
             googleLogin(event.data.code).then(user => redirectProperPage(user))
-            // googleSocialLogin(data)
-            //     .then(
-            //         (data) => {
-            //             console.log("Google login response:", data);
-            //         }
-            //     )
-            //     .catch(
-            //         ({status}) => {
-            //             if (status === 206) router.push("/auth/second-step/")
-            //         }
-            //     )
-            //     .finally(() => setLoading(false));
             window.removeEventListener("message", handleMessage);
             popup.close();
 
@@ -200,7 +188,7 @@ export default function Page() {
                 window.removeEventListener("message", handleMessage);
             }
         }, 1000);
-    }, []);
+    }, [redirectProperPage]);
 
     return (
         <div className="w-full pt-9">

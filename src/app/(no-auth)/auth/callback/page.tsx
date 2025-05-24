@@ -8,7 +8,7 @@ export default function GoogleCallback() {
         const code = params.get("code");
 
         if (code && window.opener) {
-            window.opener.postMessage({provider: "google", code}, window.origin);
+            window.opener.postMessage({code}, window.origin);
             window.close();
         }
     }, []);

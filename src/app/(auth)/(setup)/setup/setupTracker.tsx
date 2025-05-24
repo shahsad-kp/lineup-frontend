@@ -1,4 +1,11 @@
 import * as React from 'react';
+import {Step, StepButton, stepClasses, StepIndicator, stepIndicatorClasses, Stepper} from "@mui/joy";
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import KeyboardArrowDownRoundedIcon from '@mui/icons-material/KeyboardArrowDownRounded';
+import Typography from '@mui/joy/Typography';
+import {useMemo} from "react";
+import { Check } from '@mui/icons-material';
+
 
 type Props = {
     totalSteps: number,
@@ -9,13 +16,42 @@ export const SetupTracker = (props: Props) => {
     const {totalSteps, currentStep} = props;
 
     return (
-        <div className={'w-full h-1 flex flex-row gap-2 mt-4'}>
-            {Array.from({length: totalSteps}).map((_, index) => (
-                <hr
+        <Stepper sx={{ width: '100%' }}>
+            {(Array.from({length: totalSteps})).map((_, index) => (
+                <Step
                     key={index}
-                    className={`w-7 h-full rounded-2xl border-0 ${currentStep > index ? 'bg-brand-accent' : 'bg-text-muted'}`}
-                />
+                    indicator={
+                        <StepIndicator
+                            variant={currentStep <= index ? 'soft' : 'solid'}
+                            color={currentStep < index ? 'neutral' : 'primary'}
+                        >
+                            {currentStep < index ? index + 1: (
+                                currentStep === index ? (
+                                        <KeyboardArrowDownRoundedIcon
+                                            sx={{
+                                                color: 'primary.solidBg',
+                                                fontSize: '1.25rem',
+                                            }}
+                                        />
+
+                                ) : (
+                                    <Check
+                                        sx={{
+                                            color: 'primary.solidBg',
+                                            fontSize: '1.25rem',
+                                        }}
+                                    />
+                                )
+                            )}
+                        </StepIndicator>
+                    }
+                    sx={[
+                        currentStep > index &&
+                        index !== 2 && { '&::after': { bgcolor: 'primary.solidBg' } },
+                    ]}
+                >
+                </Step>
             ))}
-        </div>
+        </Stepper>
     );
 };
