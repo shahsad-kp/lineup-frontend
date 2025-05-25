@@ -1,12 +1,13 @@
 'use client';
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import Image from "next/image";
 import {connectCalendarAccount, getConnectedAccounts, updateConnectedAccount} from "@/services/api";
 import {CalendarAccount} from "@/types";
 import {useRouter} from "next/navigation";
-import {Button, Modal, ModalClose, ModalDialog, Stack, Tooltip} from "@mui/joy";
+import {Box, Button, Input, Modal, ModalClose, ModalDialog, Stack, Tooltip} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
+import LinkOffIcon from '@mui/icons-material/LinkOff';
 
 
 export default function SetupLayout() {
@@ -158,6 +159,47 @@ export default function SetupLayout() {
         getConnectedAccounts().then(calendars => setConnectedCalendarAccounts(calendars));
     }, []);
 
+    const connectedProviderLogo = useMemo(() => {
+        if (!openedCalendarAccount) return null;
+        if (openedCalendarAccount.provider === 'Google') return <svg xmlns="http://www.w3.org/2000/svg"
+                                                                     viewBox="0 0 200 200" width="24" height="24">
+            <path
+                d="M152.632 47.368l-47.368-5.263-57.895 5.263L42.105 100l5.263 52.632L100 159.211l52.632-6.579 5.263-53.947z"
+                fill="#fff"/>
+            <path
+                d="M68.961 129.026c-3.934-2.658-6.658-6.539-8.145-11.671l9.132-3.763c.829 3.158 2.276 5.605 4.342 7.342 2.053 1.737 4.553 2.592 7.474 2.592 2.987 0 5.553-.908 7.697-2.724s3.224-4.132 3.224-6.934c0-2.868-1.132-5.211-3.395-7.026s-5.105-2.724-8.5-2.724h-5.276v-9.039h4.736c2.921 0 5.382-.789 7.382-2.368s3-3.737 3-6.487c0-2.447-.895-4.395-2.684-5.855s-4.053-2.197-6.803-2.197c-2.684 0-4.816.711-6.395 2.145s-2.724 3.197-3.447 5.276l-9.039-3.763c1.197-3.395 3.395-6.395 6.618-8.987 3.224-2.592 7.342-3.895 12.342-3.895 3.697 0 7.026.711 9.974 2.145 2.947 1.434 5.263 3.421 6.934 5.947 1.671 2.539 2.5 5.382 2.5 8.539 0 3.224-.776 5.947-2.329 8.184s-3.461 3.947-5.724 5.145v.539a17.379 17.379 0 0 1 7.342 5.724c1.908 2.566 2.868 5.632 2.868 9.211s-.908 6.776-2.724 9.579-4.329 5.013-7.513 6.618C89.355 132.184 85.763 133 81.776 133c-4.618.013-8.881-1.316-12.815-3.974zM125 83.711l-9.974 7.25-5.013-7.605L128 70.382h6.895v61.197H125z"
+                fill="#1a73e8"/>
+            <path
+                d="M152.632 200L200 152.632l-23.684-10.526-23.684 10.526-10.526 23.684z"
+                fill="#ea4335"/>
+            <path
+                d="M36.842 176.316L47.368 200h105.263v-47.368H47.368z"
+                fill="#34a853"/>
+            <path
+                d="M15.789 0C7.066 0 0 7.066 0 15.789v136.842l23.684 10.526 23.684-10.526V47.368h105.263l10.526-23.684L152.632 0z"
+                fill="#4285f4"/>
+            <path
+                d="M0 152.632v31.579C0 192.935 7.066 200 15.789 200h31.579v-47.368z"
+                fill="#188038"/>
+            <path
+                d="M152.632 47.368v105.263H200V47.368l-23.684-10.526z"
+                fill="#fbbc04"/>
+            <path
+                d="M200 47.368V15.789C200 7.065 192.934 0 184.211 0h-31.579v47.368z"
+                fill="#1967d2"/>
+        </svg>
+        return <svg xmlns="http://www.w3.org/2000/svg" clipRule="evenodd"
+                    fillRule="evenodd"
+                    height="24" imageRendering="optimizeQuality"
+                    shapeRendering="geometricPrecision"
+                    textRendering="geometricPrecision"
+                    viewBox="0 0 6876 6994" width="24">
+            <path
+                d="M0 779L4033 0l-14 6994L0 6160zm1430 3632c-305-357-390-918-244-1384 203-648 718-867 1149-717 246 86 465 293 582 610 56 152 86 326 88 503 4 318-106 692-324 953-335 400-903 441-1250 35zm314-339c-150-223-191-573-120-864 99-404 352-541 563-447 121 54 228 183 285 381 27 95 42 203 43 314 2 198-52 432-159 595-164 250-442 275-612 22zm2552-2598h2341c131 0 238 107 238 238v86L5035 3039c-24 16-83 62-132 93-72 47-77 38-153-5-117-65-319-203-455-297V1474zm2580 875v2504c0 200-164 365-365 365H4296V3366c133 88 310 204 419 271 88 54 104 79 202 22 45-26 89-60 119-80l1840-1229z"
+                fill="#0072c6"/>
+        </svg>
+    }, [openedCalendarAccount]);
+
     return (
         <>
             <div>
@@ -257,15 +299,87 @@ export default function SetupLayout() {
                     </div>
                 </div>
             </div>
-            <Modal open={showAddAccountModal} onClose={onCloseModal}>
-                <ModalDialog
-                    layout="center"
-                    size="lg"
-                >
+            <Modal
+                open={showAddAccountModal}
+                onClose={onCloseModal}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <ModalDialog>
                     <ModalClose/>
-                    <h4 className={'text-text-secondary text-center text-2xl font-bold mb-3'}>
-                        {openedCalendarAccount ? 'Edit Calendar Account' : 'Add Calendar Account'}
-                    </h4>
+                    <Box>
+                        <Typography id="modal-modal-title" level="h4"
+                                    className={'text-text-secondary text-center mb-3'}>
+                            {openedCalendarAccount ? 'Edit Calendar Account' : 'Add Calendar Account'}
+                        </Typography>
+                        <Box className={'w-full flex flex-col gap-2 mt-4'}>
+                            <Input
+                                placeholder="Enter account name.."
+                                value={accountName}
+                                onChange={(e) => setAccountName(e.target.value)}
+                            />
+                            {
+                                !openedCalendarAccount ? (
+                                    <Stack direction="row" spacing={2} className={'mt-2'}>
+                                        <Button variant="outlined" onClick={connectGoogleAccount}
+                                                sx={{display: 'flex', gap: '0.5rem'}}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="24"
+                                                 height="24">
+                                                <path
+                                                    d="M152.632 47.368l-47.368-5.263-57.895 5.263L42.105 100l5.263 52.632L100 159.211l52.632-6.579 5.263-53.947z"
+                                                    fill="#fff"/>
+                                                <path
+                                                    d="M68.961 129.026c-3.934-2.658-6.658-6.539-8.145-11.671l9.132-3.763c.829 3.158 2.276 5.605 4.342 7.342 2.053 1.737 4.553 2.592 7.474 2.592 2.987 0 5.553-.908 7.697-2.724s3.224-4.132 3.224-6.934c0-2.868-1.132-5.211-3.395-7.026s-5.105-2.724-8.5-2.724h-5.276v-9.039h4.736c2.921 0 5.382-.789 7.382-2.368s3-3.737 3-6.487c0-2.447-.895-4.395-2.684-5.855s-4.053-2.197-6.803-2.197c-2.684 0-4.816.711-6.395 2.145s-2.724 3.197-3.447 5.276l-9.039-3.763c1.197-3.395 3.395-6.395 6.618-8.987 3.224-2.592 7.342-3.895 12.342-3.895 3.697 0 7.026.711 9.974 2.145 2.947 1.434 5.263 3.421 6.934 5.947 1.671 2.539 2.5 5.382 2.5 8.539 0 3.224-.776 5.947-2.329 8.184s-3.461 3.947-5.724 5.145v.539a17.379 17.379 0 0 1 7.342 5.724c1.908 2.566 2.868 5.632 2.868 9.211s-.908 6.776-2.724 9.579-4.329 5.013-7.513 6.618C89.355 132.184 85.763 133 81.776 133c-4.618.013-8.881-1.316-12.815-3.974zM125 83.711l-9.974 7.25-5.013-7.605L128 70.382h6.895v61.197H125z"
+                                                    fill="#1a73e8"/>
+                                                <path
+                                                    d="M152.632 200L200 152.632l-23.684-10.526-23.684 10.526-10.526 23.684z"
+                                                    fill="#ea4335"/>
+                                                <path
+                                                    d="M36.842 176.316L47.368 200h105.263v-47.368H47.368z"
+                                                    fill="#34a853"/>
+                                                <path
+                                                    d="M15.789 0C7.066 0 0 7.066 0 15.789v136.842l23.684 10.526 23.684-10.526V47.368h105.263l10.526-23.684L152.632 0z"
+                                                    fill="#4285f4"/>
+                                                <path
+                                                    d="M0 152.632v31.579C0 192.935 7.066 200 15.789 200h31.579v-47.368z"
+                                                    fill="#188038"/>
+                                                <path
+                                                    d="M152.632 47.368v105.263H200V47.368l-23.684-10.526z"
+                                                    fill="#fbbc04"/>
+                                                <path
+                                                    d="M200 47.368V15.789C200 7.065 192.934 0 184.211 0h-31.579v47.368z"
+                                                    fill="#1967d2"/>
+                                            </svg>
+                                            Connect Google
+                                        </Button>
+                                        <Button variant="outlined" onClick={connectMicrosoftAccount}
+                                                sx={{display: 'flex', gap: '0.5rem'}}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" clipRule="evenodd"
+                                                 fillRule="evenodd"
+                                                 height="24" imageRendering="optimizeQuality"
+                                                 shapeRendering="geometricPrecision"
+                                                 textRendering="geometricPrecision"
+                                                 viewBox="0 0 6876 6994" width="24">
+                                                <path
+                                                    d="M0 779L4033 0l-14 6994L0 6160zm1430 3632c-305-357-390-918-244-1384 203-648 718-867 1149-717 246 86 465 293 582 610 56 152 86 326 88 503 4 318-106 692-324 953-335 400-903 441-1250 35zm314-339c-150-223-191-573-120-864 99-404 352-541 563-447 121 54 228 183 285 381 27 95 42 203 43 314 2 198-52 432-159 595-164 250-442 275-612 22zm2552-2598h2341c131 0 238 107 238 238v86L5035 3039c-24 16-83 62-132 93-72 47-77 38-153-5-117-65-319-203-455-297V1474zm2580 875v2504c0 200-164 365-365 365H4296V3366c133 88 310 204 419 271 88 54 104 79 202 22 45-26 89-60 119-80l1840-1229z"
+                                                    fill="#0072c6"/>
+                                            </svg>
+                                            Connect Microsoft
+                                        </Button>
+                                    </Stack>
+                                ) : <Button
+                                    variant={'soft'}
+                                    color={'danger'}
+                                    endDecorator={<LinkOffIcon/>}
+                                >
+                                    Disconnect {openedCalendarAccount.provider}
+                                </Button>
+                            }
+                        </Box>
+                        <Box className={'w-full mt-3 flex flex-row justify-end'}>
+                            <Button variant="solid" onClick={onCloseModal}>Close</Button>
+                        </Box>
+                    </Box>
                 </ModalDialog>
             </Modal>
             {/*<Modal
@@ -284,31 +398,7 @@ export default function SetupLayout() {
                     //                             className={'w-full rounded bg-gray-500 flex flex-row gap-2 p-2 justify-center'}
                     //                             onClick={() => connectGoogleAccount()}
                     //                         >
-                    //                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="24"
-                    //                                  height="24">
-                    //                                 <path
-                    //                                     d="M152.632 47.368l-47.368-5.263-57.895 5.263L42.105 100l5.263 52.632L100 159.211l52.632-6.579 5.263-53.947z"
-                    //                                     fill="#fff"/>
-                    //                                 <path
-                    //                                     d="M68.961 129.026c-3.934-2.658-6.658-6.539-8.145-11.671l9.132-3.763c.829 3.158 2.276 5.605 4.342 7.342 2.053 1.737 4.553 2.592 7.474 2.592 2.987 0 5.553-.908 7.697-2.724s3.224-4.132 3.224-6.934c0-2.868-1.132-5.211-3.395-7.026s-5.105-2.724-8.5-2.724h-5.276v-9.039h4.736c2.921 0 5.382-.789 7.382-2.368s3-3.737 3-6.487c0-2.447-.895-4.395-2.684-5.855s-4.053-2.197-6.803-2.197c-2.684 0-4.816.711-6.395 2.145s-2.724 3.197-3.447 5.276l-9.039-3.763c1.197-3.395 3.395-6.395 6.618-8.987 3.224-2.592 7.342-3.895 12.342-3.895 3.697 0 7.026.711 9.974 2.145 2.947 1.434 5.263 3.421 6.934 5.947 1.671 2.539 2.5 5.382 2.5 8.539 0 3.224-.776 5.947-2.329 8.184s-3.461 3.947-5.724 5.145v.539a17.379 17.379 0 0 1 7.342 5.724c1.908 2.566 2.868 5.632 2.868 9.211s-.908 6.776-2.724 9.579-4.329 5.013-7.513 6.618C89.355 132.184 85.763 133 81.776 133c-4.618.013-8.881-1.316-12.815-3.974zM125 83.711l-9.974 7.25-5.013-7.605L128 70.382h6.895v61.197H125z"
-                    //                                     fill="#1a73e8"/>
-                    //                                 <path
-                    //                                     d="M152.632 200L200 152.632l-23.684-10.526-23.684 10.526-10.526 23.684z"
-                    //                                     fill="#ea4335"/>
-                    //                                 <path d="M36.842 176.316L47.368 200h105.263v-47.368H47.368z"
-                    //                                       fill="#34a853"/>
-                    //                                 <path
-                    //                                     d="M15.789 0C7.066 0 0 7.066 0 15.789v136.842l23.684 10.526 23.684-10.526V47.368h105.263l10.526-23.684L152.632 0z"
-                    //                                     fill="#4285f4"/>
-                    //                                 <path
-                    //                                     d="M0 152.632v31.579C0 192.935 7.066 200 15.789 200h31.579v-47.368z"
-                    //                                     fill="#188038"/>
-                    //                                 <path d="M152.632 47.368v105.263H200V47.368l-23.684-10.526z"
-                    //                                       fill="#fbbc04"/>
-                    //                                 <path
-                    //                                     d="M200 47.368V15.789C200 7.065 192.934 0 184.211 0h-31.579v47.368z"
-                    //                                     fill="#1967d2"/>
-                    //                             </svg>
+
                     //                             <span>Google</span>
                     //                         </button>
                     //                         <button

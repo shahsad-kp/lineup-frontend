@@ -3,9 +3,12 @@ import React from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import {Button} from "@mui/joy";
 import {useRouter} from "next/navigation";
+import {getCalendarSettings} from "@/services/api";
 
 export default function SetupLayout() {
     const router = useRouter();
+
+    getCalendarSettings().then(settings => console.log(settings));
 
     return (
         <div className={'w-full'}>

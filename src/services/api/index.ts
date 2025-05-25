@@ -9,6 +9,13 @@ import {
     updateConnectedAccount,
 } from "@/services/api/calendar";
 
+import {
+    createConflictCalendar,
+    setDefaultConflictCalendar,
+    updateConflictCalendar,
+    getConflictCalendar
+} from "@/services/api/conflictCalendar";
+
 export {
     checkEmail,
     collectToken,
@@ -21,5 +28,9 @@ export {
     updateConnectedAccount,
     getFullCalendars,
     getCalendarSettings,
-    updateCalendarSettings
+    updateCalendarSettings,
+    createConflictCalendar,
+    setDefaultConflictCalendar,
+    updateConflictCalendar,
+    getConflictCalendar
 }

@@ -1,16 +1,24 @@
 'use client';
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import {Button, Checkbox, List, ListItem} from "@mui/joy";
 import {useRouter} from "next/navigation";
 import {Calendar} from "@/types";
-import {getCalendarSettings} from "@/services/api";
+import {
+    createConflictCalendar,
+    getCalendarSettings,
+    getConflictCalendar,
+    setDefaultConflictCalendar,
+    updateConflictCalendar
+} from "@/services/api";
 import {getCalendars} from "@/services/api/calendar";
 
 export default function SetupLayout() {
     const [calendars, setCalendars] = useState<Calendar[]>([]);
     const [selectedCalendars, setSelectedCalendars] = useState<string[]>([]);
     const [defaultEventCalendarId, setDefaultEventCalendarId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const defaultConflictCalendar = useRef<string | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -18,8 +26,50 @@ export default function SetupLayout() {
         getCalendarSettings().then(settings => {
             setDefaultEventCalendarId(settings.defaultEventCalendar);
             setSelectedCalendars([settings.defaultEventCalendar]);
+            defaultConflictCalendar.current = settings.defaultConflictGroup;
+            getConflictCalendar(settings.defaultConflictGroup)
+                .then(conflictCalendar =>
+                    setSelectedCalendars([
+                        ...new Set([
+                            ...conflictCalendar.calendars.map(calendar => calendar.id),
+                            settings.defaultEventCalendar
+                        ])
+                    ])
+                )
         });
     }, []);
+
+
+    const saveAndNext = useCallback(() => {
+        if (selectedCalendars.length !== 0) {
+            setIsLoading(true);
+            if (defaultConflictCalendar.current) {
+                updateConflictCalendar(
+                    defaultConflictCalendar.current,
+                    selectedCalendars
+                )
+                    .then(() => router.push('/setup/availability/'))
+            } else {
+                createConflictCalendar(selectedCalendars)
+                    .then(conflictCalendar => {
+                        setDefaultConflictCalendar(conflictCalendar.id)
+                            .then(() => {
+                                router.push('/setup/availability/');
+                            })
+                            .catch(error => {
+                                console.error('Error updating conflict calendar:', error);
+                            })
+                            .finally(() => {
+                                setIsLoading(false);
+                            })
+                    })
+            }
+
+
+        } else {
+            router.push('/setup/availability/');
+        }
+    }, [router, selectedCalendars]);
 
     return (
         <div className={'w-full'}>
@@ -62,6 +112,8 @@ export default function SetupLayout() {
                     <Button variant="solid" onClick={() => router.back()}>Back</Button>
                     <Button
                         variant="solid"
+                        loading={isLoading}
+                        onClick={saveAndNext}
                     >
                         Next
                     </Button>
