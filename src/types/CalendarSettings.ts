@@ -1,4 +1,5 @@
 export type CalendarSettings = {
     defaultEventCalendar: string,
-    defaultConflictGroup: string
+    defaultConflictGroup: string,
+    defaultAvailabilityCalendar: string
 }

@@ -5,6 +5,7 @@ import {CalendarAccount} from "@/types/CalendarAccount";
 import {Calendar} from "@/types/Calendar";
 import {CalendarSettings} from "@/types/CalendarSettings";
 import {ConflictCalendar} from "@/types/ConflictCalendar";
+import {AvailabilityCalendar, WeeklyAvailability} from "@/types/times/";
 
 export type {
     AuthData,
@@ -14,4 +15,6 @@ export type {
     Calendar,
     CalendarSettings,
     ConflictCalendar,
+    AvailabilityCalendar,
+    WeeklyAvailability
 };
