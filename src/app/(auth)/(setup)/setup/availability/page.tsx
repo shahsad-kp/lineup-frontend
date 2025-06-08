@@ -3,7 +3,14 @@ import React, {useCallback, useEffect, useState} from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import {Button, Divider, IconButton, Stack} from "@mui/joy";
 import {useRouter} from "next/navigation";
-import {getAvailabilityCalendar, getCalendarSettings} from "@/services/api";
+import {
+    createAvailabilityCalendar,
+    createConflictCalendar,
+    getAvailabilityCalendar,
+    getCalendarSettings,
+    setDefaultConflictCalendar,
+    updateConflictCalendar
+} from "@/services/api";
 import Typography from "@mui/joy/Typography";
 import AddIcon from '@mui/icons-material/Add';
 import {StartAndEndTime} from "@/components/startAndEndTime";
@@ -50,7 +57,8 @@ export default function SetupLayout() {
                 end: '17:00',
             }
         ],
-    })
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
     const router = useRouter();
 
@@ -78,16 +86,41 @@ export default function SetupLayout() {
     useEffect(() => {
         getCalendarSettings()
             .then(settings => {
-                if (settings && settings.defaultAvailabilityCalendar) {
+                if (settings && settings.defaultAvailabilityCalendar)
                     getAvailabilityCalendar(settings.defaultAvailabilityCalendar)
                         .then(availability => {
                             if (availability) {
                                 setWeeklyAvailability(availability.weeklyAvailability);
                             }
                         });
-                }
             })
     }, []);
+
+    const saveAndNext = useCallback(() => {
+        setIsLoading(true);
+        if (defaultConflictCalendar.current) {
+            updateConflictCalendar(
+                defaultConflictCalendar.current,
+                selectedCalendars
+            )
+                .then(() => router.push('/'))
+                .finally(() => setIsLoading(false));
+        } else {
+            createAvailabilityCalendar(weeklyAvailability)
+                .then(conflictCalendar => {
+                    setDefaultConflictCalendar(conflictCalendar.id)
+                        .then(() => {
+                            router.push('/');
+                        })
+                        .catch(error => {
+                            console.error('Error updating conflict calendar:', error);
+                        })
+                        .finally(() => {
+                            setIsLoading(false);
+                        })
+                })
+        }
+    }, [router]);
 
     return (
         <div className={'w-full'}>
@@ -96,36 +129,30 @@ export default function SetupLayout() {
                 <div className={'w-full flex flex-row gap-2'}>
                     <h4 className={'text-text-secondary font-medium'}>Adjust your default availability</h4>
                 </div>
-                <div className={'max-h-55 overflow-y-auto w-full flex flex-col gap-2'}>
+                <Stack direction={'column'} maxHeight={'30vh'} overflow={'auto'} gap={2} sx={{padding: '10px'}}>
                     {Object.entries(weeklyAvailability).map(([day, slots]) => (
-                        <Stack key={day} direction={slots.length ? 'column' : 'row'} gap={2} sx={{alignItems: 'start'}}>
+                        <Stack key={day} direction={'column'} gap={2} sx={{alignItems: 'center'}}>
                             {day !== 'sunday' && <Divider sx={{marginTop: '10px'}}/>}
                             <Typography
                                 level="body-md"
                                 sx={{color: 'white'}}
+                                width={'100%'}
                             >
                                 {day.charAt(0).toUpperCase() + day.slice(1)}
                             </Typography>
-                            <Stack dir={'column'} gap={1}>
+                            <Stack dir={'column'} gap={1} sx={{width: 'fit-content'}} justifyContent={'center'}>
                                 {
-                                    slots.length > 0 ?
-                                        (
-                                            <>
-                                                {slots.map(
-                                                    (slot, index) => (
-                                                        <StartAndEndTime
-                                                            key={`${index}-${day}`}
-                                                            startTime={slot.start}
-                                                            endTime={slot.end}
-                                                            setStartTime={(time) => setAvailability(day as WeekDay, index, 'start', time)}
-                                                            setEndTime={(time) => setAvailability(day as WeekDay, index, 'end', time)}
-                                                        />
-                                                    )
-                                                )}
-                                            </>
+                                    slots.map(
+                                        (slot, index) => (
+                                            <StartAndEndTime
+                                                key={`${index}-${day}`}
+                                                startTime={slot.start}
+                                                endTime={slot.end}
+                                                setStartTime={(time) => setAvailability(day as WeekDay, index, 'start', time)}
+                                                setEndTime={(time) => setAvailability(day as WeekDay, index, 'end', time)}
+                                            />
                                         )
-                                        :
-                                        (<Typography>Unavailable</Typography>)
+                                    )
 
                                 }
                                 <IconButton
@@ -140,17 +167,22 @@ export default function SetupLayout() {
                                             ]
                                         }))
                                     }
+                                    sx={{
+                                        width: '100%',
+                                        paddingX: '3rem',
+                                    }}
                                 >
                                     <AddIcon/>
                                 </IconButton>
                             </Stack>
                         </Stack>
                     ))}
-                </div>
+                </Stack>
                 <div className={'w-full mt-3 flex flex-row justify-between'}>
                     <Button variant="solid" onClick={() => router.back()}>Back</Button>
                     <Button
                         variant="solid"
+                        onClick={saveAndNext}
                     >
                         Next
                     </Button>

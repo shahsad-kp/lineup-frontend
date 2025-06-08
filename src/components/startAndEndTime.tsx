@@ -37,7 +37,7 @@ export const StartAndEndTime = (props: Props) => {
     );
 
     return (
-        <Stack direction={'row'} gap={2} sx={{alignItems: 'center'}}>
+        <Stack direction={'row'} gap={2} sx={{alignItems: 'center', width: '100%'}} justifyContent={'center'}>
             <TimeField
                 placeholder="Start time"
                 timeOptions={filteredStartOptions}

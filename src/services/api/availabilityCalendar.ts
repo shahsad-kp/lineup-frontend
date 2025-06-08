@@ -1,4 +1,4 @@
-import {AvailabilityCalendar, CalendarSettings} from "@/types";
+import {AvailabilityCalendar} from "@/types";
 import {privateInstance} from "@/services/api/instance";
 
 const createAvailabilityCalendar = async (calendar: AvailabilityCalendar) => {
