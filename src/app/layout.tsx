@@ -17,11 +17,11 @@ export default function RootLayout(
     }>
 ) {
     return (
-        <html lang="en">
+        <html lang="en" className={'h-full'}>
         <Head>
             <Meta name="viewport" content="initial-scale=1, width=device-width" />
         </Head>
-        <body>
+        <body className={'h-full min-h-screen'}>
         {children}
         </body>
         </html>

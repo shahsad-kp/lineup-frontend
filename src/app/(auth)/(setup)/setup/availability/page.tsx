@@ -1,24 +1,24 @@
 'use client';
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import {Button, Divider, IconButton, Stack} from "@mui/joy";
 import {useRouter} from "next/navigation";
 import {
     createAvailabilityCalendar,
-    createConflictCalendar,
     getAvailabilityCalendar,
     getCalendarSettings,
-    setDefaultConflictCalendar,
-    updateConflictCalendar
+    updateCalendarSettings
 } from "@/services/api";
 import Typography from "@mui/joy/Typography";
 import AddIcon from '@mui/icons-material/Add';
 import {StartAndEndTime} from "@/components/startAndEndTime";
 import {WeeklyAvailability} from "@/types";
 import {TimeString, WeekDay} from "@/types/times";
-
+import {TimeZoneField} from "@/components/timezoneField/timeZoneField";
+import {updateAvailabilityCalendar} from "@/services/api/availabilityCalendar";
 
 export default function SetupLayout() {
+    const defaultAvailabilityCalendarId = useRef<string>(null);
     const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability>({
         sunday: [],
         monday: [
@@ -58,6 +58,7 @@ export default function SetupLayout() {
             }
         ],
     });
+    const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     const router = useRouter();
@@ -91,6 +92,8 @@ export default function SetupLayout() {
                         .then(availability => {
                             if (availability) {
                                 setWeeklyAvailability(availability.weeklyAvailability);
+                                setSelectedTimezone(availability.timezone);
+                                defaultAvailabilityCalendarId.current = availability.id;
                             }
                         });
             })
@@ -98,34 +101,47 @@ export default function SetupLayout() {
 
     const saveAndNext = useCallback(() => {
         setIsLoading(true);
-        if (defaultConflictCalendar.current) {
-            updateConflictCalendar(
-                defaultConflictCalendar.current,
-                selectedCalendars
+        if (defaultAvailabilityCalendarId.current) {
+            updateAvailabilityCalendar(
+                defaultAvailabilityCalendarId.current,
+                {
+                    weeklyAvailability,
+                    timezone: selectedTimezone || 'UTC'
+                }
             )
                 .then(() => router.push('/'))
                 .finally(() => setIsLoading(false));
         } else {
-            createAvailabilityCalendar(weeklyAvailability)
+            createAvailabilityCalendar({
+                weeklyAvailability,
+                timezone: selectedTimezone || 'UTC'
+            })
                 .then(conflictCalendar => {
-                    setDefaultConflictCalendar(conflictCalendar.id)
+                    defaultAvailabilityCalendarId.current = conflictCalendar.id;
+                    updateCalendarSettings({
+                        defaultAvailabilityCalendar: conflictCalendar.id
+                    })
                         .then(() => {
                             router.push('/');
-                        })
-                        .catch(error => {
-                            console.error('Error updating conflict calendar:', error);
                         })
                         .finally(() => {
                             setIsLoading(false);
                         })
                 })
+                .catch(() => {
+                    setIsLoading(false);
+                });
         }
-    }, [router]);
+    }, [router, selectedTimezone, weeklyAvailability]);
 
     return (
         <div className={'w-full'}>
             <SetupTracker totalSteps={4} currentStep={3}/>
             <div className={'w-full flex flex-col gap-3 mt-10'}>
+                <div className={'w-full flex flex-row gap-2'}>
+                    <h4 className={'text-text-secondary font-medium'}>Select your timezone</h4>
+                </div>
+                <TimeZoneField value={selectedTimezone} setValue={setSelectedTimezone} autoSelectUserTimeZone={false}/>
                 <div className={'w-full flex flex-row gap-2'}>
                     <h4 className={'text-text-secondary font-medium'}>Adjust your default availability</h4>
                 </div>
@@ -183,6 +199,7 @@ export default function SetupLayout() {
                     <Button
                         variant="solid"
                         onClick={saveAndNext}
+                        loading={isLoading}
                     >
                         Next
                     </Button>

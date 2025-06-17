@@ -115,6 +115,10 @@
 
 }
 
+*{
+    box-sizing: border-box;
+}
+
 
 @keyframes shake {
     0% {

@@ -17,8 +17,6 @@ export default function AuthLayout(props: Props) {
                     className="block dark:hidden"
                     width={150}
                 />
-
-                {/* Dark mode logo */}
                 <Image
                     src={FullLogoDark}
                     alt="LineUp Logo"

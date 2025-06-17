@@ -3,6 +3,7 @@ import React, {useCallback, useRef, useState} from "react";
 import {checkEmail, collectToken, googleLogin, registerUser} from "@/services/api/auth";
 import {AuthData} from "@/types";
 import {useRouter} from "next/navigation";
+import {getSetupUrl} from "@/services/utils/authUtils";
 
 export default function Page() {
     const [email, setEmail] = useState('');
@@ -32,8 +33,7 @@ export default function Page() {
     }, []);
 
     const redirectProperPage = useCallback((user: AuthData) => {
-        if (!user.isEmailVerified)
-            router.push('/verify-email/')
+        router.push(getSetupUrl(user));
     }, [router]);
 
     const handleSubmit = useCallback((e: React.FormEvent) => {
