@@ -6,12 +6,11 @@ type Props = {
 }
 
 export default function WithAuthLayout(props: Props) {
-
     return <>
-        <main className={'w-full min-h-[calc(100vh-3.4rem)] bg-white rounded-3xl'}>
+        <div className={'w-full h-full flex flex-col'}>
             <AuthProvider logoutUrl={'/auth/'}>
                 {props.children}
             </AuthProvider>
-        </main>
+        </div>
     </>
 }

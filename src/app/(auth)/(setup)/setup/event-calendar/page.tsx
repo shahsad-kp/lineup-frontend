@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {SetupTracker} from "@/app/(auth)/(setup)/setup/setupTracker";
 import {useRouter} from "next/navigation";
 import {CalendarAccount} from "@/types";
-import {Button, List, ListDivider, ListItem, Option, Select} from "@mui/joy";
+import {Button, List, ListItem, Option, Select} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {getCalendarSettings, getFullCalendars, updateCalendarSettings} from "@/services/api";
 
@@ -30,7 +30,7 @@ export default function SetupLayout() {
     }, []);
 
     const handleChange = (
-        event: React.SyntheticEvent | null,
+        _: React.SyntheticEvent | null,
         value: string | null,
     ) => {
         setSelectedCalendarId(value);
@@ -65,9 +65,8 @@ export default function SetupLayout() {
                             value={selectedCalendarId}
                         >
                             {calendarAccounts.map((account, index) => (
-                                <React.Fragment key={account.id}>
-                                    {index !== 0 && <ListDivider role="none"/>}
                                     <List
+                                        key={index}
                                         aria-labelledby={`select-group-${account.id}`}
                                         sx={{'--ListItemDecorator-size': '28px'}}
                                     >
@@ -86,7 +85,6 @@ export default function SetupLayout() {
                                             </Option>
                                         ))}
                                     </List>
-                                </React.Fragment>
                             ))}
                         </Select>
                     </div>

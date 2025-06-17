@@ -4,4 +4,5 @@ export type AuthData = {
     email: string,
     isEmailVerified: boolean,
     timezone: string,
+    setupProgress: number
 }

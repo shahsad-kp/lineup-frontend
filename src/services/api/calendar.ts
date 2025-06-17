@@ -1,5 +1,6 @@
 import {privateInstance} from "@/services/api/instance";
-import {Calendar, CalendarAccount, CalendarSettings, ConnectCalendarData} from "@/types";
+import {Calendar, CalendarAccount, ConnectCalendarData} from "@/types";
+import {CalendarSettings} from "@/types/settings";
 
 const connectAccount = async (data: ConnectCalendarData) => {
     const result = await privateInstance.post<CalendarAccount>('/accounts/', data);
@@ -32,7 +33,7 @@ const getCalendarSettings = async () => {
     return result.data
 }
 
-const updateCalendarSettings = async (settings: CalendarSettings) => {
+const updateCalendarSettings = async (settings: Partial<CalendarSettings>) => {
     const result = await privateInstance.patch<CalendarSettings>(`/calendar-settings/`, settings);
     return result.data
 }

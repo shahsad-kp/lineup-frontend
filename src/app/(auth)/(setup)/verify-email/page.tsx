@@ -3,6 +3,8 @@ import React, {FormEvent, useCallback, useContext, useMemo, useState} from "reac
 import {AuthContext} from "@/services/authContext/authContext";
 import {maskEmail} from "@/services/utils/emailUtils";
 import {resendCode, verifyEmail} from "@/services/api/auth";
+import {getSetupUrl} from "@/services/utils/authUtils";
+import {useRouter} from "next/navigation";
 
 export default function VerifyEmailPage() {
     const {authData, setAuthData} = useContext(AuthContext);
@@ -10,6 +12,7 @@ export default function VerifyEmailPage() {
     const [sentCodeSuccessfully, setSentCodeSuccessfully] = useState(false);
 
     const [error, setError] = useState<string[]>([]);
+    const router = useRouter();
     const otpLength = 8
 
     const otpOnChange = useCallback((code: string) => {
@@ -28,7 +31,10 @@ export default function VerifyEmailPage() {
     const onSubmit = useCallback((e: FormEvent) => {
         e.preventDefault();
         verifyEmail(otp).then(
-            user => setAuthData(user)
+            user => {
+                setAuthData(user);
+                router.push(getSetupUrl(user));
+            }
         ).catch(({status, data}: { status: number, data: { code: string } }) => {
             if (status === 400) {
                 setError([data.code])
@@ -39,7 +45,7 @@ export default function VerifyEmailPage() {
                 )
             }
         })
-    }, [otp, setAuthData]);
+    }, [otp, router, setAuthData]);
 
     const sendCode = useCallback(() => {
         resendCode().then(

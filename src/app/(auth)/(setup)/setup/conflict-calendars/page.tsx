@@ -27,15 +27,17 @@ export default function SetupLayout() {
             setDefaultEventCalendarId(settings.defaultEventCalendar);
             setSelectedCalendars([settings.defaultEventCalendar]);
             defaultConflictCalendar.current = settings.defaultConflictGroup;
-            getConflictCalendar(settings.defaultConflictGroup)
-                .then(conflictCalendar =>
-                    setSelectedCalendars([
-                        ...new Set([
-                            ...conflictCalendar.calendars.map(calendar => calendar.id),
-                            settings.defaultEventCalendar
+            if (settings.defaultConflictGroup) {
+                getConflictCalendar(settings.defaultConflictGroup)
+                    .then(conflictCalendar =>
+                        setSelectedCalendars([
+                            ...new Set([
+                                ...conflictCalendar.calendars.map(calendar => calendar.id),
+                                settings.defaultEventCalendar
+                            ])
                         ])
-                    ])
-                )
+                    )
+            }
         });
     }, []);
 
@@ -64,11 +66,8 @@ export default function SetupLayout() {
                             })
                     })
             }
-
-
-        } else {
+        } else
             router.push('/setup/availability/');
-        }
     }, [router, selectedCalendars]);
 
     return (

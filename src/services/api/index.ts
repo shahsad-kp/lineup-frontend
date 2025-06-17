@@ -16,6 +16,11 @@ import {
     getConflictCalendar
 } from "@/services/api/conflictCalendar";
 
+import {
+    createAvailabilityCalendar,
+    getAvailabilityCalendar
+} from "@/services/api/availabilityCalendar";
+
 export {
     checkEmail,
     collectToken,
@@ -32,5 +37,7 @@ export {
     createConflictCalendar,
     setDefaultConflictCalendar,
     updateConflictCalendar,
-    getConflictCalendar
+    getConflictCalendar,
+    createAvailabilityCalendar,
+    getAvailabilityCalendar
 }
