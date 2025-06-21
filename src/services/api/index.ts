@@ -21,6 +21,10 @@ import {
     getAvailabilityCalendar
 } from "@/services/api/availabilityCalendar";
 
+import {
+    getSelfEventTypes
+} from "@/services/api/eventTypes";
+
 export {
     checkEmail,
     collectToken,
@@ -39,5 +43,6 @@ export {
     updateConflictCalendar,
     getConflictCalendar,
     createAvailabilityCalendar,
-    getAvailabilityCalendar
+    getAvailabilityCalendar,
+    getSelfEventTypes
 }

@@ -1,5 +1,5 @@
-'use client'
+import {redirect} from "next/navigation";
 
-export default function GoogleCallback() {
-    return <p>Signing you in...</p>;
+export default function Page() {
+    redirect('/event-types/');
 }
