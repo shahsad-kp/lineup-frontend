@@ -108,8 +108,10 @@ export default function EventTypeIndividualPage(props: Props) {
         });
     }, []);
 
-    const durationOptions = useMemo(() => {
+    const defaultDurations = useMemo(() => {
         return [
+            10,
+            15,
             30,
             60,
             90,
@@ -118,12 +120,18 @@ export default function EventTypeIndividualPage(props: Props) {
         ]
     }, []);
 
+    const durationOptions = useCallback((selectedOption: number) => {
+        return defaultDurations.filter(d => !durations.some(existing => {
+            return existing.duration === d && (selectedOption === undefined || existing.duration !== selectedOption);
+        }))
+    }, [defaultDurations, durations]);
+
     const addNewOption = useCallback(() => {
-        const duration = durationOptions.find(d => !durations.some(existing => existing.duration === d));
+        const duration = defaultDurations.find(d => !durations.some(existing => existing.duration === d));
         if (duration !== undefined) {
             setDurations(prev => [...prev, {duration, isDefault: false}]);
         }
-    }, [durationOptions, durations]);
+    }, [defaultDurations, durations]);
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}}>
@@ -207,7 +215,7 @@ export default function EventTypeIndividualPage(props: Props) {
                                                         placeholder={'HH:MM'}
 
                                                     >
-                                                        {durationOptions.map((option, idx) => (
+                                                        {durationOptions(duration.duration).map((option, idx) => (
                                                             <Option
                                                                 key={idx}
                                                                 value={option}
