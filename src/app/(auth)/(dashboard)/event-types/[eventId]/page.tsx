@@ -1,11 +1,14 @@
 'use client';
-import {Divider, Input, Stack} from "@mui/joy";
+import {Button, Divider, Input, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {EventType} from "@/types";
 import {getEventType} from "@/services/api";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {EventTypeDuration} from "@/types/eventTypes";
+import Select from "@mui/joy/Select";
+import Option from "@mui/joy/Option";
 
 type Props = {
     params: Promise<{
@@ -24,16 +27,18 @@ export default function EventTypeIndividualPage(props: Props) {
     const [eventType, setEventType] = useState<EventType | null>(null);
     const [updatedData, setUpdatedData] = useState<Partial<EventType>>({});
     const [expandedDurations, setExpandedDurations] = useState<boolean>(false);
+    const [expandedLocations, setExpandedLocations] = useState<boolean>(false);
     const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
+    const [locations, setLocations] = useState()
+
 
     useEffect(() => {
         const loadData = async () => {
             const {eventId} = await props.params;
             const data = await getEventType(eventId);
             setEventType(data);
-            console.log('Event ID:', eventId);
+            setDurations(data.durations)
         };
-
         loadData();
     }, [props.params]);
 
@@ -53,35 +58,72 @@ export default function EventTypeIndividualPage(props: Props) {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         if (short) {
-            return `${hours <= 9? '0' : ''}${hours}:${mins}`;
+            return `${hours <= 9 ? '0' : ''}${hours}:${mins}`;
         }
+        let text = '';
         if (hours > 0) {
-            return `${hours} hour${hours > 1 ? 's' : ''} ${mins} minute${mins > 1 ? 's' : ''}`;
+            text += `${hours} hour${hours > 1 ? 's' : ''} `;
         }
-        return `${mins} minute${mins > 1 ? 's' : ''}`;
+        if (mins > 0) {
+            text += `${mins} minute${mins > 1 ? 's' : ''}`;
+        }
+        if (text === '') {
+            return '0 minutes';
+        }
+        if (text.endsWith(' ')) {
+            text = text.slice(0, -1); // Remove trailing space
+        }
+        return text;
     }, []);
 
-
-    const updateDuration = useCallback((value: string, index?: number) => {
-        const match = /^(\d{1,2}):(\d{2})$/.exec(value);
-        if (!match) return;
-
-        const hours = parseInt(match[1], 10);
-        const minutes = parseInt(match[2], 10);
-        const totalMinutes = hours * 60 + minutes;
+    const updateDuration = useCallback((totalMinutes: number, index?: number) => {
+        // const match = /^(\d{1,2}):(\d{2})$/.exec(value);
+        // console.log('match', value);
+        // if (!match) {
+        //     console.error('Invalid duration format. Please use HH:MM format.');
+        //     return;
+        // }
+        //
+        // const hours = parseInt(match[1], 10);
+        // const minutes = parseInt(match[2], 10);
+        // const totalMinutes = hours * 60 + minutes;
         setDurations(prev => {
-            const updated = [...prev];
-            if (index !== undefined && index >= 0 && index < updated.length) {
-                updated[index].duration = totalMinutes;
+            if (index !== undefined && index >= 0 && index < prev.length) {
+                return prev.map((duration, idx) => {
+                    if (idx === index) {
+                        return {
+                            ...duration,
+                            duration: totalMinutes,
+                        };
+                    }
+                    return duration;
+                });
             } else {
-                updated.push({
+                console.log('Adding new duration:', totalMinutes);
+                return [...prev, {
                     duration: totalMinutes,
                     isDefault: false,
-                });
+                }];
             }
-            return updated;
         });
     }, []);
+
+    const durationOptions = useMemo(() => {
+        return [
+            30,
+            60,
+            90,
+            120,
+            180
+        ]
+    }, []);
+
+    const addNewOption = useCallback(() => {
+        const duration = durationOptions.find(d => !durations.some(existing => existing.duration === d));
+        if (duration !== undefined) {
+            setDurations(prev => [...prev, {duration, isDefault: false}]);
+        }
+    }, [durationOptions, durations]);
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}}>
@@ -110,73 +152,177 @@ export default function EventTypeIndividualPage(props: Props) {
                     onChange={(event) => setData('name', event.target.value)}
                 />
                 <Divider/>
-                <Stack
-                    component={'button'}
-                    direction={'row'}
-                    justifyContent={'space-between'}
-                    onClick={() => setExpandedDurations(!expandedDurations)}
-                    width={'100%'}
-                    color={'white'}
-                    padding={'0.5rem 0'}
-                    sx={{
-                        cursor: 'pointer',
-                    }}
-                >
-                    <Typography level={'h4'}>Durations</Typography>
-                    <ArrowDropDownIcon
-                        sx={{
-                            transform: expandedDurations ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s ease',
-                        }}
-                    />
-                </Stack>
-                <Stack
-                    component={'li'}
-                    direction={'column'}
-                >
-                    {
-                        eventType?.durations?.map((duration, index) => {
-                            return (
+                <Stack direction={'row'} justifyContent={'space-between'} width={'100%'} gap={'2rem'}>
+                    <Stack direction={'column'} gap={1} width={'100%'}>
+                        <Stack
+                            component={'button'}
+                            direction={'row'}
+                            justifyContent={'space-between'}
+                            onClick={() => setExpandedDurations(!expandedDurations)}
+                            width={'100%'}
+                            color={'white'}
+                            padding={'0.5rem 0'}
+                            sx={{
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <Typography level={'h4'}>Durations</Typography>
+                            <ArrowDropDownIcon
+                                sx={{
+                                    transform: expandedDurations ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease',
+                                }}
+                            />
+                        </Stack>
+                        {
+                            expandedDurations && (
                                 <Stack
-                                    key={index}
-                                    direction={'row'}
-                                    alignItems="center"
-                                    justifyContent={'space-between'}
-                                    padding={'0.5rem 0'}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                        },
-                                    }}
+                                    component='li'
+                                    direction='column'
+                                    gap={1}
                                 >
-                                    <Input
-                                        type="text"
-                                        value={convertMinutes(duration.duration, true)}
-                                        onChange={(e) => updateDuration(e.target.value, index)}
-                                        sx={{
-                                            maxWidth: 100,
-                                            fontSize: '1rem',
-                                            background: 'transparent',
-                                            color: 'white',
-                                            '& input': {
-                                                padding: 0,
-                                                textAlign: 'right',
-                                            },
-                                            '&::before': {display: 'none'},
-                                        }}
-                                        placeholder={'HH:MM'}
-                                    />
-                                    <Typography level={'body-sm'}>
-                                        {duration.isDefault ? 'Default' : 'Custom'}
-                                    </Typography>
-                                </Stack>
+                                    {
+                                        durations?.map((duration, index) => {
+                                            return (
+                                                <Stack
+                                                    key={index}
+                                                    direction={'row'}
+                                                    alignItems="center"
+                                                    justifyContent={'space-between'}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    <Select
+                                                        value={duration.duration}
+                                                        onChange={(e, newValue) => {
+                                                            if (newValue !== null) {
+                                                                updateDuration(newValue, index);
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            fontSize: '1rem',
+                                                            minWidth: '12rem',
+                                                        }}
+                                                        placeholder={'HH:MM'}
 
-                            );
-                        })
-                    }
+                                                    >
+                                                        {durationOptions.map((option, idx) => (
+                                                            <Option
+                                                                key={idx}
+                                                                value={option}
+                                                                onClick={() => updateDuration(option, index)}
+                                                            >
+                                                                {convertMinutes(option, false)}
+                                                            </Option>
+                                                        ))}
+                                                    </Select>
+                                                    <Stack direction={'row'} gap={'.5rem'} alignItems={'center'}>
+                                                        {
+                                                            duration.isDefault ? (
+                                                                <Typography level={'body-sm'} color={'success'}>
+                                                                    Default
+                                                                </Typography>
+                                                            ) : (
+                                                                <Button
+                                                                    color={'neutral'}
+                                                                    onClick={() => {
+                                                                        setDurations(prev => prev.map((d, idx) => ({
+                                                                            ...d,
+                                                                            isDefault: idx === index,
+                                                                        })));
+                                                                    }}
+                                                                >
+                                                                    Set as default
+                                                                </Button>
+                                                            )
+                                                        }
+                                                        {
+                                                            !duration.isDefault && (
+                                                                <Button
+                                                                    variant={'plain'}
+                                                                    color={'danger'}
+                                                                    onClick={() => {
+                                                                        setDurations(prev => prev.filter((_, idx) => idx !== index));
+                                                                    }}
+                                                                >
+                                                                    <RemoveCircleOutlineIcon/>
+                                                                </Button>
+                                                            )
+                                                        }
+                                                    </Stack>
+                                                </Stack>
+                                            );
+                                        })
+                                    }
+                                    {durations.length < 5 && <Button
+                                        variant={"soft"}
+                                        color={"neutral"}
+                                        onClick={addNewOption}
+                                        sx={{
+                                            marginTop: "0.5rem",
+                                            width: "100%",
+                                        }}
+                                    >
+                                        Add Duration
+                                    </Button>}
+                                </Stack>
+                            )
+                        }
+                    </Stack>
+                    <Stack direction={'column'} gap={1} width={'100%'}>
+                        <Stack
+                            component={'button'}
+                            direction={'row'}
+                            justifyContent={'space-between'}
+                            onClick={() => setExpandedLocations(!expandedLocations)}
+                            width={'100%'}
+                            color={'white'}
+                            padding={'0.5rem 0'}
+                            sx={{
+                                cursor: 'pointer',
+                            }}
+                        >
+                            <Typography level={'h4'}>Locations</Typography>
+                            <ArrowDropDownIcon
+                                sx={{
+                                    transform: expandedLocations ? 'rotate(180deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.3s ease',
+                                }}
+                            />
+                        </Stack>
+                        {
+                            expandedLocations && (
+                                <Stack
+                                    component={'li'}
+                                    direction={'column'}
+                                >
+                                    {
+                                        eventType?.durations?.map((duration, index) => {
+                                            return (
+                                                <Stack
+                                                    key={index}
+                                                    direction={'row'}
+                                                    alignItems="center"
+                                                    justifyContent={'space-between'}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+
+                                                    <Typography level={'body-sm'}>
+                                                        {duration.isDefault ? 'Default' : 'Custom'}
+                                                    </Typography>
+                                                </Stack>
+
+                                            );
+                                        })
+                                    }
+                                </Stack>
+                            )
+                        }
+                    </Stack>
                 </Stack>
-                <Divider/>
             </Stack>
         </Stack>
     );
