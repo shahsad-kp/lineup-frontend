@@ -6,7 +6,7 @@ import {EventType} from "@/types";
 import {getEventType} from "@/services/api";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import {EventTypeDuration} from "@/types/eventTypes";
+import {EventTypeDuration, EventTypeLocation} from "@/types/eventTypes";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 
@@ -21,6 +21,7 @@ type EventTypeStringKeys = Exclude<{
 }[keyof EventType], 'durations'>;
 
 type EventTypeDurationOptional = Omit<EventTypeDuration, 'id'> & { id?: string };
+type EventTypeLocationOptional = Omit<EventTypeLocation, 'id'> & { id?: string };
 
 
 export default function EventTypeIndividualPage(props: Props) {
@@ -29,17 +30,19 @@ export default function EventTypeIndividualPage(props: Props) {
     const [expandedDurations, setExpandedDurations] = useState<boolean>(false);
     const [expandedLocations, setExpandedLocations] = useState<boolean>(false);
     const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
-    const [locations, setLocations] = useState()
+    const [locations, setLocations] = useState<EventTypeLocationOptional[]>()
 
 
     useEffect(() => {
         const loadData = async () => {
             const {eventId} = await props.params;
-            const data = await getEventType(eventId);
-            setEventType(data);
-            setDurations(data.durations)
+            return await getEventType(eventId);
         };
-        loadData();
+        loadData().then(data => {
+            setEventType(data);
+            setDurations(data.durations);
+            setLocations(data.locations);
+        });
     }, [props.params]);
 
     const setData = useCallback((key: EventTypeStringKeys, value: string) => {
@@ -77,16 +80,6 @@ export default function EventTypeIndividualPage(props: Props) {
     }, []);
 
     const updateDuration = useCallback((totalMinutes: number, index?: number) => {
-        // const match = /^(\d{1,2}):(\d{2})$/.exec(value);
-        // console.log('match', value);
-        // if (!match) {
-        //     console.error('Invalid duration format. Please use HH:MM format.');
-        //     return;
-        // }
-        //
-        // const hours = parseInt(match[1], 10);
-        // const minutes = parseInt(match[2], 10);
-        // const totalMinutes = hours * 60 + minutes;
         setDurations(prev => {
             if (index !== undefined && index >= 0 && index < prev.length) {
                 return prev.map((duration, idx) => {
@@ -113,6 +106,7 @@ export default function EventTypeIndividualPage(props: Props) {
             10,
             15,
             30,
+            45,
             60,
             90,
             120,
