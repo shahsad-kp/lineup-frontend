@@ -3,6 +3,6 @@ export type EventTypeLocation = {
     locationType: 'in-person' | 'call';
     isDefault: boolean;
     address?: string;
-    requireInviteeNumber?: string;
+    requireInviteeNumber: boolean;
     phoneNumber?: string
 }

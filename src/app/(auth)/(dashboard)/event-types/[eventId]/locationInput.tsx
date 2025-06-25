@@ -1,7 +1,7 @@
 'use client'
 
-import {Dispatch, SetStateAction, useMemo, useState} from "react";
-import {Button, Stack, Typography} from "@mui/joy";
+import {Dispatch, SetStateAction, useCallback, useMemo, useState} from "react";
+import {Box, Button, Input, Radio, RadioGroup, Stack, Textarea, Typography} from "@mui/joy";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { EventTypeLocationOptional } from "@/types/eventTypes/eventTypeLocationOptional";
 import Select from "@mui/joy/Select";
@@ -30,6 +30,39 @@ export const LocationInput = (props: Props) => {
         ]
     }, []);
 
+    const setLocationType = useCallback((locationType: string, index: number) => {
+        setLocations((prevLocations) => {
+            const updatedLocations = [...prevLocations];
+            updatedLocations[index] = {
+                ...updatedLocations[index],
+                locationType: locationType as 'in-person' | 'call',
+            };
+            return updatedLocations;
+        });
+    }, [setLocations]);
+
+    const updateRequireInviteeNumber = useCallback((requireInviteeNumber: boolean, index: number) => {
+        setLocations((prevLocations) => {
+            const updatedLocations = [...prevLocations];
+            updatedLocations[index] = {
+                ...updatedLocations[index],
+                requireInviteeNumber: requireInviteeNumber,
+            };
+            return updatedLocations;
+        });
+    }, [setLocations]);
+
+    const updatePhoneNumber = useCallback((phoneNumber: string, index: number) => {
+        setLocations((prevLocations) => {
+            const updatedLocations = [...prevLocations];
+            updatedLocations[index] = {
+                ...updatedLocations[index],
+                phoneNumber
+            };
+            return updatedLocations;
+        });
+    }, [setLocations]);
+
     return (
         <Stack direction={'column'} gap={1} width={'100%'}>
             <Stack
@@ -55,61 +88,120 @@ export const LocationInput = (props: Props) => {
             {
                 expandedLocations && (
                     <Stack
-                        component={'li'}
+                        component={'ul'}
                         direction={'column'}
                     >
                         {
                             locations?.map((eventLocation, index) => {
                                 return (
                                     <Stack
-                                        key={index}
-                                        direction={'row'}
-                                        alignItems="center"
-                                        justifyContent={'space-between'}
-                                        sx={{
-                                            cursor: 'pointer',
-                                        }}
+                                        component={'li'}
+                                        key={eventLocation.id}
+                                        direction={'column'}
+                                        gap={2}
                                     >
-                                        <Select
+                                        <Stack
+                                            key={index}
+                                            direction={'row'}
+                                            alignItems="center"
+                                            justifyContent={'space-between'}
                                             sx={{
-                                                fontSize: '1rem',
-                                                minWidth: '12rem',
+                                                cursor: 'pointer',
                                             }}
                                         >
-                                            {locationTypeOptions.map((option, idx) => (
-                                                <Option
-                                                    key={idx}
-                                                    value={option}
-                                                >
-                                                    {option.label}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                        <Stack direction={'row'} gap={'.5rem'} alignItems={'center'}>
-                                            {
-                                                eventLocation.isDefault ? (
-                                                    <Typography level={'body-sm'} color={'success'}>
-                                                        Default
-                                                    </Typography>
-                                                ) : (
-                                                    <Button
-                                                        color={'neutral'}
+                                            <Select
+                                                sx={{
+                                                    fontSize: '1rem',
+                                                    minWidth: '12rem',
+                                                }}
+                                                placeholder={'Select location type...'}
+                                                value={eventLocation.locationType}
+                                                onChange={(e, value) => setLocationType(value as string, index)}
+                                            >
+                                                {locationTypeOptions.map((option, idx) => (
+                                                    <Option
+                                                        key={idx}
+                                                        value={option.value}
                                                     >
-                                                        Set as default
-                                                    </Button>
-                                                )
-                                            }
-                                            {
-                                                !eventLocation.isDefault && (
-                                                    <Button
-                                                        variant={'plain'}
-                                                        color={'danger'}
-                                                    >
-                                                        <RemoveCircleOutlineIcon/>
-                                                    </Button>
-                                                )
-                                            }
+                                                        {option.label}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                            <Stack direction={'row'} gap={'.5rem'} alignItems={'center'}>
+                                                {
+                                                    eventLocation.isDefault ? (
+                                                        <Typography level={'body-sm'} color={'success'}>
+                                                            Default
+                                                        </Typography>
+                                                    ) : (
+                                                        <Button
+                                                            color={'neutral'}
+                                                        >
+                                                            Set as default
+                                                        </Button>
+                                                    )
+                                                }
+                                                {
+                                                    !eventLocation.isDefault && (
+                                                        <Button
+                                                            variant={'plain'}
+                                                            color={'danger'}
+                                                        >
+                                                            <RemoveCircleOutlineIcon/>
+                                                        </Button>
+                                                    )
+                                                }
+                                            </Stack>
                                         </Stack>
+                                        <Box>
+                                            {
+                                                eventLocation.locationType === 'in-person' ? (
+                                                    <Stack direction={'column'} gap={'.5rem'}>
+                                                        <Textarea
+                                                            minRows={2}
+                                                            placeholder={'Address...'}
+                                                            value={eventLocation.address || ''}
+                                                            onChange={(e) => {
+                                                                setLocations((prevLocations) => {
+                                                                    const updatedLocations = [...prevLocations];
+                                                                    updatedLocations[index] = {
+                                                                        ...updatedLocations[index],
+                                                                        address: e.target.value,
+                                                                    };
+                                                                    return updatedLocations;
+                                                                });
+                                                            }}
+                                                        />
+                                                    </Stack>
+                                                ) : (
+                                                    <Stack direction={'column'} gap={'.5rem'}>
+                                                        <RadioGroup
+                                                            defaultValue={true}
+                                                            name="radio-buttons-group"
+                                                            onChange={(event) => {
+                                                                updateRequireInviteeNumber(event.target.value === 'true', index);
+                                                            }}
+                                                            value={eventLocation.requireInviteeNumber}
+                                                        >
+                                                            <Radio value={'true'} label="Require Invitee Number" variant="outlined" />
+                                                            <Radio value={'false'} label="Provide a phone number to invitees after they book." variant="soft" />
+                                                        </RadioGroup>
+                                                        {
+                                                            !eventLocation.requireInviteeNumber && (
+                                                                <Input
+                                                                    size="md"
+                                                                    placeholder="Phone Number"
+                                                                    value={eventLocation.phoneNumber || ''}
+                                                                    onChange={(e) => updatePhoneNumber(e.target.value, index)}
+                                                                    type="tel"
+                                                                    sx={{ width: '100%', marginTop: '0.5rem' }}
+                                                                />
+                                                            )
+                                                        }
+                                                    </Stack>
+                                                )
+                                            }
+                                        </Box>
                                     </Stack>
                                 );
                             })
