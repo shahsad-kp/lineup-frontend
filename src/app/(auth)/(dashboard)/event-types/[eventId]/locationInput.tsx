@@ -3,7 +3,7 @@
 import {Dispatch, SetStateAction, useCallback, useMemo, useState} from "react";
 import {Box, Button, Input, Radio, RadioGroup, Stack, Textarea, Typography} from "@mui/joy";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { EventTypeLocationOptional } from "@/types/eventTypes/eventTypeLocationOptional";
+import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOptional";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -63,6 +63,35 @@ export const LocationInput = (props: Props) => {
         });
     }, [setLocations]);
 
+    const addNewOption = useCallback(() => {
+        setLocations((prevLocations) => {
+            if (prevLocations.length >= 5) return prevLocations; // Limit to 5 locations
+            return [...prevLocations, {
+                id: crypto.randomUUID(),
+                locationType: 'in-person',
+                isDefault: false,
+                address: '',
+                requireInviteeNumber: true,
+                phoneNumber: '',
+            }];
+        });
+    }, [setLocations]);
+
+    const setDefault = useCallback((index: number) => {
+        setLocations((prevLocations) => {
+            return prevLocations.map((location, idx) => ({
+                ...location,
+                isDefault: idx === index,
+            }));
+        });
+    }, [setLocations]);
+
+    const removeLocation = useCallback((index: number) => {
+        setLocations((prevLocations) => {
+            return prevLocations.filter((_, idx) => idx !== index);
+        });
+    }, []);
+
     return (
         <Stack direction={'column'} gap={1} width={'100%'}>
             <Stack
@@ -90,6 +119,7 @@ export const LocationInput = (props: Props) => {
                     <Stack
                         component={'ul'}
                         direction={'column'}
+                        gap={3}
                     >
                         {
                             locations?.map((eventLocation, index) => {
@@ -136,6 +166,7 @@ export const LocationInput = (props: Props) => {
                                                     ) : (
                                                         <Button
                                                             color={'neutral'}
+                                                            onClick={() => setDefault(index)}
                                                         >
                                                             Set as default
                                                         </Button>
@@ -146,6 +177,7 @@ export const LocationInput = (props: Props) => {
                                                         <Button
                                                             variant={'plain'}
                                                             color={'danger'}
+                                                            onClick={() => removeLocation(index)}
                                                         >
                                                             <RemoveCircleOutlineIcon/>
                                                         </Button>
@@ -183,8 +215,11 @@ export const LocationInput = (props: Props) => {
                                                             }}
                                                             value={eventLocation.requireInviteeNumber}
                                                         >
-                                                            <Radio value={'true'} label="Require Invitee Number" variant="outlined" />
-                                                            <Radio value={'false'} label="Provide a phone number to invitees after they book." variant="soft" />
+                                                            <Radio value={'true'} label="Require Invitee Number"
+                                                                   variant="outlined"/>
+                                                            <Radio value={'false'}
+                                                                   label="Provide a phone number to invitees after they book."
+                                                                   variant="soft"/>
                                                         </RadioGroup>
                                                         {
                                                             !eventLocation.requireInviteeNumber && (
@@ -194,7 +229,7 @@ export const LocationInput = (props: Props) => {
                                                                     value={eventLocation.phoneNumber || ''}
                                                                     onChange={(e) => updatePhoneNumber(e.target.value, index)}
                                                                     type="tel"
-                                                                    sx={{ width: '100%', marginTop: '0.5rem' }}
+                                                                    sx={{width: '100%', marginTop: '0.5rem'}}
                                                                 />
                                                             )
                                                         }
@@ -205,6 +240,19 @@ export const LocationInput = (props: Props) => {
                                     </Stack>
                                 );
                             })
+                        }
+                        {
+                            locations.length < 5 && <Button
+                                variant={"soft"}
+                                color={"neutral"}
+                                onClick={addNewOption}
+                                sx={{
+                                    marginTop: "0.5rem",
+                                    width: "100%",
+                                }}
+                            >
+                                Add Location
+                            </Button>
                         }
                     </Stack>
                 )
