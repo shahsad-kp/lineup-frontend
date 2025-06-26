@@ -1,13 +1,14 @@
 'use client';
-import {Divider, Input, Stack} from "@mui/joy";
+import {Button, Divider, Input, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {EventType} from "@/types";
 import {getEventType} from "@/services/api";
 import {DurationInput} from "@/app/(auth)/(dashboard)/event-types/[eventId]/durationInput";
 import {EventTypeDurationOptional} from "@/types/eventTypes/eventTypeDurationOptional";
 import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOptional";
 import {LocationInput} from "@/app/(auth)/(dashboard)/event-types/[eventId]/locationInput";
+import { useRouter } from 'next/navigation';
 
 type Props = {
     params: Promise<{
@@ -26,6 +27,7 @@ export default function EventTypeIndividualPage(props: Props) {
     const [updatedData, setUpdatedData] = useState<Partial<EventType>>({});
     const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
     const [locations, setLocations] = useState<EventTypeLocationOptional[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
         const loadData = async () => {
@@ -34,8 +36,6 @@ export default function EventTypeIndividualPage(props: Props) {
         };
         loadData().then(data => {
             setEventType(data);
-            setDurations(data.durations);
-            setLocations(data.locations);
         });
     }, [props.params]);
 
@@ -51,8 +51,47 @@ export default function EventTypeIndividualPage(props: Props) {
         return eventType?.[key] as string ?? '';
     }, [eventType, updatedData]);
 
+    const isDataUpdated = useMemo(() => {
+        if (!eventType) return false;
+        const dataUpdated = Object.keys(updatedData).some(key => {
+            const typedKey = key as EventTypeStringKeys;
+            return updatedData[typedKey] !== undefined && updatedData[typedKey] !== eventType[typedKey];
+        });
+        if (dataUpdated) return true;
+        if (durations.length !== eventType.durations.length) return true;
+        if (locations.length !== eventType.locations.length) return true;
+    }, [durations.length, eventType, locations.length, updatedData]);
+
+    const handleUndoChanges = useCallback(() => {
+        setUpdatedData({});
+        setDurations(eventType?.durations || []);
+        setLocations(eventType?.locations || []);
+    }, [eventType]);
+
+    useEffect(() => {
+        if (eventType) {
+            setDurations(eventType.durations);
+            setLocations(eventType.locations);
+        }
+    }, [eventType]);
+
+    useEffect(() => {
+        window.history.pushState(null, document.title, window.location.href)
+
+        const handleRouteChange = () => {
+            window.history.pushState(null, document.title, window.location.href)
+        }
+
+        window.addEventListener("popstate", handleRouteChange)
+
+        return () => {
+            window.removeEventListener("popstate", handleRouteChange)
+        }
+    }, [])
+
+
     return (
-        <Stack spacing={2} padding={2} sx={{width: '100%'}}>
+        <Stack spacing={2} padding={2} sx={{width: '100%'}} paddingBottom={'5rem'} position={'relative'}>
             <Typography level={'h3'}>EVENT TYPE</Typography>
             <Stack direction={'column'} gap={2}>
                 <Input
@@ -83,6 +122,25 @@ export default function EventTypeIndividualPage(props: Props) {
                     <LocationInput locations={locations} setLocations={setLocations}/>
                 </Stack>
             </Stack>
+            {
+                isDataUpdated && (
+                    <Stack
+                        bottom={'1rem'}
+                        right={'1rem'}
+                        direction={'row'}
+                        justifyContent={'end'}
+                        position={'fixed'}
+                        gap={2}
+                    >
+                        <Button variant={'plain'} onClick={handleUndoChanges}>
+                            Undo Changes
+                        </Button>
+                        <Button>
+                            Save Changes
+                        </Button>
+                    </Stack>
+                )
+            }
         </Stack>
     );
 };
