@@ -22,7 +22,9 @@ import {
 } from "@/services/api/availabilityCalendar";
 
 import {
-    getSelfEventTypes
+    getSelfEventTypes,
+    getEventType,
+    updateEventType,
 } from "@/services/api/eventTypes";
 
 export {
@@ -44,5 +46,7 @@ export {
     getConflictCalendar,
     createAvailabilityCalendar,
     getAvailabilityCalendar,
-    getSelfEventTypes
+    getSelfEventTypes,
+    getEventType,
+    updateEventType,
 }

@@ -1,5 +1,5 @@
 export type EventTypeDuration = {
     id: string;
-    duration: number; // in minutes
+    duration: number;
     isDefault: boolean;
 }
