@@ -94,11 +94,10 @@ export default function EventTypeIndividualPage(props: Props) {
             updateEventType(
                 eventType.id,
                 {
-                    ...updatedData,
-                    visibility: 'public',
-                    name: getData('name'),
-                    description: eventType.description,
-                    pageUrl: eventType.pageUrl,
+                    name: updatedData.name || eventType.name,
+                    description: updatedData.description || eventType.description,
+                    visibility: updatedData.visibility || eventType.visibility,
+                    pageUrl: updatedData.pageUrl || eventType.pageUrl,
                     durations: durations,
                     locations: locations
                 }
