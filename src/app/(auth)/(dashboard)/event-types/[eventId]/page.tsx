@@ -3,7 +3,7 @@ import {Button, Divider, Input, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {EventType} from "@/types";
-import {getEventType} from "@/services/api";
+import {getEventType, updateEventType} from "@/services/api";
 import {DurationInput} from "@/app/(auth)/(dashboard)/event-types/[eventId]/durationInput";
 import {EventTypeDurationOptional} from "@/types/eventTypes/eventTypeDurationOptional";
 import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOptional";
@@ -89,6 +89,29 @@ export default function EventTypeIndividualPage(props: Props) {
         }
     }, [])
 
+    const saveChanges = useCallback(() => {
+        if (eventType){
+            updateEventType(
+                eventType.id,
+                {
+                    ...updatedData,
+                    visibility: 'public',
+                    name: getData('name'),
+                    description: eventType.description,
+                    pageUrl: eventType.pageUrl,
+                    durations: durations,
+                    locations: locations
+                }
+            ).then(() => {
+                setUpdatedData({});
+                setDurations(eventType.durations);
+                setLocations(eventType.locations);
+                router.push('/dashboard/event-types');
+            }
+            )
+        }
+    }, []);
+
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}} paddingBottom={'5rem'} position={'relative'}>
@@ -135,7 +158,7 @@ export default function EventTypeIndividualPage(props: Props) {
                         <Button variant={'plain'} onClick={handleUndoChanges}>
                             Undo Changes
                         </Button>
-                        <Button>
+                        <Button onClick={saveChanges}>
                             Save Changes
                         </Button>
                     </Stack>

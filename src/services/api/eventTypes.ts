@@ -1,5 +1,5 @@
 import {privateInstance} from "@/services/api/instance";
-import {EventType} from "@/types";
+import {EventType, EventTypeUpdateData} from "@/types";
 
 const getSelfEventTypes = async () => {
     const result = await privateInstance.get<EventType[]>('/event-type/');
@@ -11,7 +11,13 @@ const getEventType = async (eventId: string) => {
     return result.data
 }
 
+const updateEventType = async (eventId: string, data: EventTypeUpdateData) => {
+    const result = await privateInstance.patch<EventType>(`/event-type/${eventId}`, data);
+    return result.data
+}
+
 export {
     getSelfEventTypes,
-    getEventType
+    getEventType,
+    updateEventType
 }

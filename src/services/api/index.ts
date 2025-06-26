@@ -23,7 +23,8 @@ import {
 
 import {
     getSelfEventTypes,
-    getEventType
+    getEventType,
+    updateEventType,
 } from "@/services/api/eventTypes";
 
 export {
@@ -46,5 +47,6 @@ export {
     createAvailabilityCalendar,
     getAvailabilityCalendar,
     getSelfEventTypes,
-    getEventType
+    getEventType,
+    updateEventType,
 }
