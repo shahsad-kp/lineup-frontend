@@ -1,5 +1,5 @@
 'use client';
-import {Box, Button, Grid, Stack} from "@mui/joy";
+import {Button, Grid, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useEffect, useState} from "react";
 import {getSelfEventTypes} from "@/services/api";
