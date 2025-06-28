@@ -127,18 +127,6 @@ export default function EventTypeIndividualPage(props: Props) {
         }
     }, [eventType]);
 
-    useEffect(() => {
-        window.history.pushState(null, document.title, window.location.href)
-        const handleRouteChange = () => {
-            window.history.pushState(null, document.title, window.location.href)
-        }
-        window.addEventListener("popstate", handleRouteChange)
-
-        return () => {
-            window.removeEventListener("popstate", handleRouteChange)
-        }
-    }, [])
-
     const saveChanges = useCallback(() => {
         if (eventType) {
             if (eventType.id === 'new')

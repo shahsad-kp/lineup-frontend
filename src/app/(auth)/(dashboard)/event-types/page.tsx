@@ -1,10 +1,11 @@
 'use client';
-import {Grid, Stack} from "@mui/joy";
+import {Box, Button, Grid, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useEffect, useState} from "react";
 import {getSelfEventTypes} from "@/services/api";
 import {EventType} from "@/types";
 import {useRouter} from "next/navigation";
+import AddIcon from '@mui/icons-material/Add';
 
 export default function EventTypeListPage() {
     const [eventTypes, setEventTypes] = useState<EventType[]>([]);
@@ -15,8 +16,15 @@ export default function EventTypeListPage() {
     }, []);
 
     return (
-        <Stack spacing={2} padding={2} sx={{width: '100%'}}>
-            <Typography level={'h3'}>Event Types</Typography>
+        <Stack spacing={2} padding={2} sx={{width: '100%'}} position={'relative'} height={'100%'}>
+            <Stack direction={'row'} width={'100%'} justifyContent={'space-between'} alignItems={'center'}>
+                <Typography level={'h3'}>Event Types</Typography>
+                <Button variant={'solid'} onClick={() => {
+                    router.push('/event-types/new')
+                }}>
+                    <AddIcon/>
+                </Button>
+            </Stack>
             <Grid container gap={2}>
                 {eventTypes.map((eventType, index) => (
                     <Stack
