@@ -7,12 +7,12 @@ const getSelfEventTypes = async () => {
 }
 
 const getEventType = async (eventId: string) => {
-    const result = await privateInstance.get<EventType>(`/event-type/${eventId}`);
+    const result = await privateInstance.get<EventType>(`/event-type/${eventId}/`);
     return result.data
 }
 
 const updateEventType = async (eventId: string, data: EventTypeUpdateData) => {
-    const result = await privateInstance.patch<EventType>(`/event-type/${eventId}`, data);
+    const result = await privateInstance.patch<EventType>(`/event-type/${eventId}/`, data);
     return result.data
 }
 

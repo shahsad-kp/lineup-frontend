@@ -8,7 +8,7 @@ import {DurationInput} from "@/app/(auth)/(dashboard)/event-types/[eventId]/dura
 import {EventTypeDurationOptional} from "@/types/eventTypes/eventTypeDurationOptional";
 import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOptional";
 import {LocationInput} from "@/app/(auth)/(dashboard)/event-types/[eventId]/locationInput";
-import { useRouter } from 'next/navigation';
+import {areObjectsDifferent} from "@/services/utils/utilFunctions";
 
 type Props = {
     params: Promise<{
@@ -21,13 +21,11 @@ type EventTypeStringKeys = Exclude<{
 }[keyof EventType], 'durations'>;
 
 
-
 export default function EventTypeIndividualPage(props: Props) {
     const [eventType, setEventType] = useState<EventType | null>(null);
     const [updatedData, setUpdatedData] = useState<Partial<EventType>>({});
     const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
     const [locations, setLocations] = useState<EventTypeLocationOptional[]>([]);
-    const router = useRouter();
 
     useEffect(() => {
         const loadData = async () => {
@@ -53,14 +51,29 @@ export default function EventTypeIndividualPage(props: Props) {
 
     const isDataUpdated = useMemo(() => {
         if (!eventType) return false;
+
         const dataUpdated = Object.keys(updatedData).some(key => {
             const typedKey = key as EventTypeStringKeys;
-            return updatedData[typedKey] !== undefined && updatedData[typedKey] !== eventType[typedKey];
+            return (
+                updatedData[typedKey] !== undefined &&
+                updatedData[typedKey] !== eventType[typedKey]
+            );
         });
         if (dataUpdated) return true;
+
         if (durations.length !== eventType.durations.length) return true;
+        for (let i = 0; i < durations.length; i++) {
+            if (areObjectsDifferent(durations[i], eventType.durations[i])) return true;
+        }
+
         if (locations.length !== eventType.locations.length) return true;
-    }, [durations.length, eventType, locations.length, updatedData]);
+        for (let i = 0; i < locations.length; i++) {
+            if (areObjectsDifferent(locations[i], eventType.locations[i])) return true;
+        }
+
+        return false;
+    }, [durations, locations, eventType, updatedData]);
+
 
     const handleUndoChanges = useCallback(() => {
         setUpdatedData({});
@@ -77,11 +90,9 @@ export default function EventTypeIndividualPage(props: Props) {
 
     useEffect(() => {
         window.history.pushState(null, document.title, window.location.href)
-
         const handleRouteChange = () => {
             window.history.pushState(null, document.title, window.location.href)
         }
-
         window.addEventListener("popstate", handleRouteChange)
 
         return () => {
@@ -90,7 +101,7 @@ export default function EventTypeIndividualPage(props: Props) {
     }, [])
 
     const saveChanges = useCallback(() => {
-        if (eventType){
+        if (eventType) {
             updateEventType(
                 eventType.id,
                 {
@@ -101,15 +112,14 @@ export default function EventTypeIndividualPage(props: Props) {
                     durations: durations,
                     locations: locations
                 }
-            ).then(() => {
-                setUpdatedData({});
-                setDurations(eventType.durations);
-                setLocations(eventType.locations);
-                router.push('/dashboard/event-types');
-            }
+            ).then(
+                (eventType) => {
+                    setUpdatedData({});
+                    setEventType(eventType);
+                }
             )
         }
-    }, []);
+    }, [durations, eventType, locations, updatedData.description, updatedData.name, updatedData.pageUrl, updatedData.visibility]);
 
 
     return (
