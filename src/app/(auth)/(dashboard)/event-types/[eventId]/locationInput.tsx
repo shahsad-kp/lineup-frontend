@@ -90,7 +90,7 @@ export const LocationInput = (props: Props) => {
         setLocations((prevLocations) => {
             return prevLocations.filter((_, idx) => idx !== index);
         });
-    }, []);
+    }, [setLocations]);
 
     return (
         <Stack direction={'column'} gap={1} width={'100%'}>
@@ -126,7 +126,7 @@ export const LocationInput = (props: Props) => {
                                 return (
                                     <Stack
                                         component={'li'}
-                                        key={eventLocation.id}
+                                        key={index}
                                         direction={'column'}
                                         gap={2}
                                     >

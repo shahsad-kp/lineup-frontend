@@ -25,6 +25,7 @@ import {
     getSelfEventTypes,
     getEventType,
     updateEventType,
+    createEventType
 } from "@/services/api/eventTypes";
 
 export {
@@ -49,4 +50,5 @@ export {
     getSelfEventTypes,
     getEventType,
     updateEventType,
+    createEventType
 }
