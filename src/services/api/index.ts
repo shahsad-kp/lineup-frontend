@@ -28,6 +28,10 @@ import {
     createEventType
 } from "@/services/api/eventTypes";
 
+import {
+    getSelfMultiEventTypes
+} from "@/services/api/multiEventTypes";
+
 export {
     checkEmail,
     collectToken,
@@ -50,5 +54,6 @@ export {
     getSelfEventTypes,
     getEventType,
     updateEventType,
-    createEventType
+    createEventType,
+    getSelfMultiEventTypes
 }

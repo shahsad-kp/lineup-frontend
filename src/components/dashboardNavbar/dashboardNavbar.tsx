@@ -15,7 +15,7 @@ export const DashboardNavbar = () => {
     const navBarOptions = useMemo(() => {
         return [
             {name: 'Event Types', href: '/event-types', icon: <EventIcon/>},
-            {name: 'Multi Events', href: '/settings', icon: <CalendarMonthIcon/>},
+            {name: 'Multi Event Types', href: '/multi-event-types', icon: <CalendarMonthIcon/>},
             {name: 'Meeting Schedules', href: '/profile', icon: <ScheduleIcon/>},
             {name: 'Availability', href: '/profile', icon: <EventAvailableIcon/>},
             {name: 'Contacts', href: '/contacts', icon: <GroupsIcon/>},
