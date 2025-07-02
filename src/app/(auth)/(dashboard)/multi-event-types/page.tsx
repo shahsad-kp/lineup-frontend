@@ -3,12 +3,12 @@ import {Button, Grid, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useEffect, useState} from "react";
 import {getSelfMultiEventTypes} from "@/services/api";
-import {EventType} from "@/types";
+import {MultiEventType} from "@/types";
 import {useRouter} from "next/navigation";
 import AddIcon from '@mui/icons-material/Add';
 
-export default function EventTypeListPage() {
-    const [eventTypes, setEventTypes] = useState<EventType[]>([]);
+export default function MultiEventTypeListPage() {
+    const [eventTypes, setEventTypes] = useState<MultiEventType[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -44,11 +44,12 @@ export default function EventTypeListPage() {
                         }}
                         onClick={
                             () => {
-                                router.push('/event-types/' + eventType.id);
+                                router.push('/multi-event-types/' + eventType.id);
                             }
                         }
                     >
                         <Typography level={'h4'}>{eventType.name}</Typography>
+                        <Typography>{eventType.eventTypes.length} event{eventType.eventTypes.length <= 1 ? '' : 's'}</Typography>
                         <Typography
                             sx={{
                                 overflow: 'hidden',

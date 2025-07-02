@@ -4,8 +4,9 @@ import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection
 export type MultiEventType = {
     id: string;
     name: string;
+    description: string;
     owner: AuthData;
     visibility: 'public' | 'private' | 'unlisted';
-    pageSlug: string;
+    pageUrl: string;
     eventTypes: MultiEventConnection[];
 }
