@@ -6,6 +6,7 @@ import {Calendar} from "@/types/Calendar";
 import {ConflictCalendar} from "@/types/ConflictCalendar";
 import {AvailabilityCalendar, WeeklyAvailability} from "@/types/times/";
 import {EventType, EventTypeUpdateData, EventTypeCreateData} from "@/types/eventTypes";
+import {MultiEventType} from "@/types/multiEventTypes";
 
 export type {
     AuthData,
@@ -18,5 +19,6 @@ export type {
     WeeklyAvailability,
     EventType,
     EventTypeUpdateData,
-    EventTypeCreateData
+    EventTypeCreateData,
+    MultiEventType
 };
