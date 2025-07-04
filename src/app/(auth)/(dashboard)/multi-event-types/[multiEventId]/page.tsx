@@ -2,14 +2,9 @@
 import {Button, Divider, Input, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {EventType} from "@/types";
-import {createEventType, getEventType, updateEventType} from "@/services/api";
-import {EventTypeDurationOptional} from "@/types/eventTypes/eventTypeDurationOptional";
-import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOptional";
-import {areObjectsDifferent} from "@/services/utils/utilFunctions";
+import {EventType, MultiEventType} from "@/types";
+import {getMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
-import {DurationInput} from "@/components/durationInput/durationInput";
-import { LocationInput } from "@/components/locationInput/locationInput";
 
 type Props = {
     params: Promise<{
@@ -22,15 +17,13 @@ type EventTypeStringKeys = Exclude<{
 }[keyof EventType], 'durations'>;
 
 
-export default function EventTypeIndividualPage(props: Props) {
-    const [eventType, setEventType] = useState<EventType | null>(null);
-    const [updatedData, setUpdatedData] = useState<Partial<EventType>>({});
-    const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
-    const [locations, setLocations] = useState<EventTypeLocationOptional[]>([]);
+export default function MultiEventTypeIndividualPage(props: Props) {
+    const [multiEventType, setMultiEventType] = useState<MultiEventType | null>(null);
+    const [updatedData, setUpdatedData] = useState<Partial<MultiEventType>>({});
     const router = useRouter();
 
     useEffect(() => {
-        async function loadEventType(): Promise<EventType> {
+        async function loadEventType(): Promise<MultiEventType> {
             const {multiEventId} = await props.params;
             if (multiEventId === 'new') {
                 return {
@@ -39,13 +32,27 @@ export default function EventTypeIndividualPage(props: Props) {
                     description: '',
                     visibility: 'public',
                     pageUrl: '',
-                    durations: [],
-                    locations: [],
+                    eventTypes: [
+                        {
+                            id: 'new',
+                            eventType: {
+                                id: 'new',
+                                name: '',
+                                description: '',
+                                visibility: 'public',
+                                pageUrl: '',
+                                durations: [],
+                                locations: [],
+                            },
+                            position: 0,
+                            bufferBefore: 0
+                        }
+                    ]
                 };
             }
 
             try {
-                return await getEventType(multiEventId);
+                return await getMultiEventType(multiEventId);
             } catch (error) {
                 throw error;
             }
@@ -53,7 +60,7 @@ export default function EventTypeIndividualPage(props: Props) {
 
         loadEventType()
             .then(data => {
-                setEventType(data);
+                setMultiEventType(data);
             })
             .catch(data => {
                 console.error('Error loading event type:', data);
@@ -70,97 +77,40 @@ export default function EventTypeIndividualPage(props: Props) {
 
     const getData = useCallback((key: EventTypeStringKeys): string => {
         if (updatedData[key] !== undefined) return updatedData[key] as string;
-        return eventType?.[key] as string ?? '';
-    }, [eventType, updatedData]);
+        return multiEventType?.[key] as string ?? '';
+    }, [multiEventType, updatedData]);
 
     const isDataUpdated = useMemo(() => {
-        if (!eventType) return false;
+        if (!multiEventType) return false;
 
-        const dataUpdated = Object.keys(updatedData).some(key => {
+        return Object.keys(updatedData).some(key => {
             const typedKey = key as EventTypeStringKeys;
             return (
                 updatedData[typedKey] !== undefined &&
-                updatedData[typedKey] !== eventType[typedKey]
+                updatedData[typedKey] !== multiEventType[typedKey]
             );
         });
-        if (dataUpdated) return true;
 
-        if (durations.length !== eventType.durations.length) return true;
-        for (let i = 0; i < durations.length; i++) {
-            if (areObjectsDifferent(durations[i], eventType.durations[i])) return true;
-        }
+       
 
-        if (locations.length !== eventType.locations.length) return true;
-        for (let i = 0; i < locations.length; i++) {
-            if (areObjectsDifferent(locations[i], eventType.locations[i])) return true;
-        }
 
-        return false;
-    }, [durations, locations, eventType, updatedData]);
+    }, [multiEventType, updatedData]);
 
 
     const handleUndoChanges = useCallback(() => {
         setUpdatedData({});
-        setDurations(eventType?.durations || []);
-        setLocations(eventType?.locations || []);
-    }, [eventType]);
-
-    useEffect(() => {
-        if (eventType) {
-            if (eventType.durations.length === 0)
-                setDurations([{
-                    duration: 30,
-                    isDefault: true
-                }]);
-            else
-                setDurations(eventType.durations);
-            if (eventType.locations.length === 0)
-                setLocations([{
-                    locationType: 'call',
-                    isDefault: true,
-                    address: '',
-                    requireInviteeNumber: true,
-                    phoneNumber: ''
-                }]);
-            else
-                setLocations(eventType.locations);
-        }
-    }, [eventType]);
+    }, []);
 
     const saveChanges = useCallback(() => {
-        if (eventType) {
-            if (eventType.id === 'new')
-                createEventType({
-                    name: updatedData.name || eventType.name,
-                    description: updatedData.description || eventType.description,
-                    visibility: updatedData.visibility || eventType.visibility,
-                    pageUrl: updatedData.pageUrl || eventType.pageUrl,
-                    durations: durations,
-                    locations: locations
-                }).then(
-                    (eventType) => {
-                        router.replace('/event-types/' + eventType.id);
-                    }
-                )
-            else
-                updateEventType(
-                    eventType.id,
-                    {
-                        name: updatedData.name || eventType.name,
-                        description: updatedData.description || eventType.description,
-                        visibility: updatedData.visibility || eventType.visibility,
-                        pageUrl: updatedData.pageUrl || eventType.pageUrl,
-                        durations: durations,
-                        locations: locations
-                    }
-                ).then(
-                    (eventType) => {
-                        setUpdatedData({});
-                        setEventType(eventType);
-                    }
-                )
+        if (multiEventType) {
+            if (multiEventType.id === 'new') {
+                // Create a new event type
+            }
+            else{
+                // Update existing event type
+            }
         }
-    }, [durations, eventType, locations, router, updatedData.description, updatedData.name, updatedData.pageUrl, updatedData.visibility]);
+    }, [multiEventType]);
 
 
     return (
@@ -168,7 +118,7 @@ export default function EventTypeIndividualPage(props: Props) {
             <Typography level={'h3'}>EVENT TYPE</Typography>
             <Stack direction={'column'} gap={2}>
                 <Input
-                    placeholder={'name' in updatedData || eventType?.id === 'new' ? 'Event type title...' : ''}
+                    placeholder={'name' in updatedData || multiEventType?.id === 'new' ? 'Event type title...' : ''}
                     value={getData('name')}
                     sx={{
                         marginBottom: '1rem',
@@ -191,8 +141,7 @@ export default function EventTypeIndividualPage(props: Props) {
                 />
                 <Divider/>
                 <Stack direction={'row'} justifyContent={'space-between'} width={'100%'} gap={'2rem'}>
-                    <DurationInput durations={durations} setDurations={setDurations}/>
-                    <LocationInput locations={locations} setLocations={setLocations}/>
+                    {/**/}
                 </Stack>
             </Stack>
             {
