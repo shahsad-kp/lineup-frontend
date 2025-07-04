@@ -9,11 +9,11 @@ import {EventTypeLocationOptional} from "@/types/eventTypes/eventTypeLocationOpt
 import {areObjectsDifferent} from "@/services/utils/utilFunctions";
 import {useRouter} from "next/navigation";
 import {DurationInput} from "@/components/durationInput/durationInput";
-import {LocationInput} from "@/components/locationInput/locationInput";
+import { LocationInput } from "@/components/locationInput/locationInput";
 
 type Props = {
     params: Promise<{
-        eventId: string
+        multiEventId: string
     }>
 }
 
@@ -31,8 +31,8 @@ export default function EventTypeIndividualPage(props: Props) {
 
     useEffect(() => {
         async function loadEventType(): Promise<EventType> {
-            const {eventId} = await props.params;
-            if (eventId === 'new') {
+            const {multiEventId} = await props.params;
+            if (multiEventId === 'new') {
                 return {
                     id: 'new',
                     name: '',
@@ -45,7 +45,7 @@ export default function EventTypeIndividualPage(props: Props) {
             }
 
             try {
-                return await getEventType(eventId);
+                return await getEventType(multiEventId);
             } catch (error) {
                 throw error;
             }
