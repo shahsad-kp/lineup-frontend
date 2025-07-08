@@ -1,5 +1,5 @@
 'use client';
-import {Button, Input, Stack} from "@mui/joy";
+import {Button, Card, Input, Stack, Textarea} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
@@ -91,8 +91,6 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                 updatedData[typedKey] !== multiEventType[typedKey]
             );
         });
-
-        
     }, [multiEventType, updatedData]);
 
     const handleUndoChanges = useCallback(() => {
@@ -125,6 +123,57 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     fullWidth={true}
                     onChange={(event) => setData('name', event.target.value)}
                 />
+                <Textarea
+                    minRows={3}
+                    placeholder="Multi event type description..."
+                    variant="outlined"
+                    size="md"
+                    value={getData('description')}
+                    onChange={(event) => setData('description', event.target.value)}
+                    sx={{
+                        marginBottom: '1rem',
+                        padding: '0.5rem 0',
+                        border: '0',
+                        background: 'transparent',
+                        color: 'white',
+                        '&::before': {
+                            display: 'none',
+                        },
+                        '&:focus-within': {
+                            outline: 'none',
+                            outlineOffset: '2px',
+                        },
+                    }}
+                />
+            </Stack>
+            <Stack component={'ul'} width={'100%'} minHeight={'13rem'} height={'4rem'} direction={'row'}
+                   alignItems={'center'}>
+                {
+                    multiEventType?.eventTypes.map(
+                        (eventType, index) => (
+                            <Card
+                                key={index}
+                                component={'li'}
+                                sx={{
+                                    height: '100%',
+                                    padding: 2,
+                                    borderRadius: '8px',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                    },
+                                }}
+                                onClick={() => {
+                                    router.push(`/multi-event-types/${multiEventType.id}/${eventType.id}`);
+                                }}
+                            >
+                                <Typography level={'h4'}>{eventType.eventType.name}</Typography>
+                                <Typography level={'body-md'}>{eventType.eventType.description}</Typography>
+                            </Card>
+                        )
+                    )
+                }
             </Stack>
             {
                 isDataUpdated && (
@@ -139,7 +188,8 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                         <Button variant={'plain'} onClick={handleUndoChanges}>
                             Undo Changes
                         </Button>
-                        <Button onClick={() => {}}>
+                        <Button onClick={() => {
+                        }}>
                             Save Changes
                         </Button>
                     </Stack>
