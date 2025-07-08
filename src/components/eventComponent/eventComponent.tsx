@@ -24,8 +24,6 @@ export const EventComponent = (props: Props) => {
     const [durations, setDurations] = useState<EventTypeDurationOptional[]>([]);
     const [locations, setLocations] = useState<EventTypeLocationOptional[]>([]);
     const router = useRouter();
-
-
     const {eventType, setEventType} = props;
 
     const setData = useCallback((key: EventTypeStringKeys, value: string) => {
