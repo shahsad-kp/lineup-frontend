@@ -151,26 +151,41 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                 {
                     multiEventType?.eventTypes.map(
                         (eventType, index) => (
-                            <Card
+                            <Stack
                                 key={index}
                                 component={'li'}
                                 sx={{
                                     height: '100%',
-                                    padding: 2,
                                     borderRadius: '8px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                     cursor: 'pointer',
-                                    '&:hover': {
-                                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                    },
+                                    padding: 0,
+                                    paddingLeft: 2,
+                                    background: 'transparent',
                                 }}
                                 onClick={() => {
                                     router.push(`/multi-event-types/${multiEventType.id}/${eventType.id}`);
                                 }}
+                                direction={'row'}
+                                alignItems={'center'}
                             >
-                                <Typography level={'h4'}>{eventType.eventType.name}</Typography>
-                                <Typography level={'body-md'}>{eventType.eventType.description}</Typography>
-                            </Card>
+                                <Typography>
+                                    {eventType.bufferBefore}
+                                    {eventType.bufferBefore === 1 ? ' minute' : ' minutes'} before
+                                </Typography>
+                                <Card
+                                    sx={{
+                                        padding: 2,
+                                        height: '100%',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                        },
+                                    }}
+                                >
+                                    <Typography level={'h4'}>{eventType.eventType.name}</Typography>
+                                    <Typography level={'body-md'}>{eventType.eventType.description}</Typography>
+                                </Card>
+                            </Stack>
                         )
                     )
                 }
