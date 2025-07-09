@@ -6,7 +6,8 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Select from "@mui/joy/Select";
 import Option from "@mui/joy/Option";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import { EventTypeDurationOptional } from "@/types/eventTypes/eventTypeDurationOptional";
+import {EventTypeDurationOptional} from "@/types/eventTypes/eventTypeDurationOptional";
+import {convertMinutes} from "@/services/utils/utilFunctions";
 
 type Props = {
     durations: EventTypeDurationOptional[];
@@ -65,27 +66,6 @@ export const DurationInput = (props: Props) => {
         }
     }, [defaultDurations, durations, setDurations]);
 
-    const convertMinutes = useCallback((minutes: number, short: boolean) => {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (short) {
-            return `${hours <= 9 ? '0' : ''}${hours}:${mins}`;
-        }
-        let text = '';
-        if (hours > 0) {
-            text += `${hours} hour${hours > 1 ? 's' : ''} `;
-        }
-        if (mins > 0) {
-            text += `${mins} minute${mins > 1 ? 's' : ''}`;
-        }
-        if (text === '') {
-            return '0 minutes';
-        }
-        if (text.endsWith(' ')) {
-            text = text.slice(0, -1);
-        }
-        return text;
-    }, []);
 
     return (
         <Stack direction={'column'} gap={1} width={'100%'}>

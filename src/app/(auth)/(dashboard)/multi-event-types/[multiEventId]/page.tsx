@@ -6,6 +6,7 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 import {EventType, MultiEventType} from "@/types";
 import {getMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
+import {convertMinutes} from "@/services/utils/utilFunctions";
 
 type Props = {
     params: Promise<{
@@ -146,8 +147,15 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     }}
                 />
             </Stack>
-            <Stack component={'ul'} width={'100%'} minHeight={'13rem'} height={'4rem'} direction={'row'}
-                   alignItems={'center'}>
+            <Stack
+                component={'ul'}
+                width={'100%'}
+                minHeight={'13rem'}
+                height={'4rem'}
+                direction={'row'}
+                alignItems={'center'}
+                gap={2}
+            >
                 {
                     multiEventType?.eventTypes.map(
                         (eventType, index) => (
@@ -159,8 +167,9 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                                     borderRadius: '8px',
                                     cursor: 'pointer',
                                     padding: 0,
-                                    paddingLeft: 2,
                                     background: 'transparent',
+                                    border: 1,
+                                    paddingLeft: eventType.bufferBefore ? 2 : 0
                                 }}
                                 onClick={() => {
                                     router.push(`/multi-event-types/${multiEventType.id}/${eventType.id}`);
@@ -168,10 +177,13 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                                 direction={'row'}
                                 alignItems={'center'}
                             >
-                                <Typography>
-                                    {eventType.bufferBefore}
-                                    {eventType.bufferBefore === 1 ? ' minute' : ' minutes'} before
-                                </Typography>
+                                {
+                                    eventType.bufferBefore ? (
+                                        <Typography>
+                                            {convertMinutes(eventType.bufferBefore, false)}
+                                        </Typography>
+                                    ): <></>
+                                }
                                 <Card
                                     sx={{
                                         padding: 2,
@@ -180,6 +192,8 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                                         '&:hover': {
                                             backgroundColor: 'rgba(255, 255, 255, 0.2)',
                                         },
+                                        marginLeft: eventType.bufferBefore ? 2 : 0,
+                                        minWidth: '13rem',
                                     }}
                                 >
                                     <Typography level={'h4'}>{eventType.eventType.name}</Typography>
