@@ -1,12 +1,12 @@
 'use client';
-import {Button, Card, Input, Stack, Textarea} from "@mui/joy";
+import {Button, Input, Stack, Textarea} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {EventType, MultiEventType} from "@/types";
 import {getMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
-import {convertMinutes} from "@/services/utils/utilFunctions";
+import EventsList from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventsList";
 
 type Props = {
     params: Promise<{
@@ -147,65 +147,9 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     }}
                 />
             </Stack>
-            <Stack width={'60rem'} overflow={'auto'}>
-                <Stack
-                    component={'ul'}
-                    width={'fit-content'}
-                    minHeight={'13rem'}
-                    height={'4rem'}
-                    direction={'row'}
-                    alignItems={'center'}
-                    gap={2}
-                >
-                    {
-                        multiEventType?.eventTypes.map(
-                            (eventType, index) => (
-                                <Stack
-                                    key={index}
-                                    component={'li'}
-                                    sx={{
-                                        height: '100%',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        padding: 0,
-                                        background: 'transparent',
-                                        border: 1,
-                                        paddingLeft: eventType.bufferBefore ? 2 : 0
-                                    }}
-                                    onClick={() => {
-                                        router.push(`/multi-event-types/${multiEventType.id}/${eventType.id}`);
-                                    }}
-                                    direction={'row'}
-                                    alignItems={'center'}
-                                >
-                                    {
-                                        eventType.bufferBefore ? (
-                                            <Typography>
-                                                {convertMinutes(eventType.bufferBefore, false)}
-                                            </Typography>
-                                        ): <></>
-                                    }
-                                    <Card
-                                        sx={{
-                                            padding: 2,
-                                            height: '100%',
-                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                            '&:hover': {
-                                                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                            },
-                                            marginLeft: eventType.bufferBefore ? 2 : 0,
-                                            minWidth: '13rem',
-                                        }}
-                                    >
-                                        <Typography level={'h4'}>{eventType.eventType.name}</Typography>
-                                        <Typography level={'body-md'}>{eventType.eventType.description}</Typography>
-                                    </Card>
-                                </Stack>
-                            )
-                        )
-                    }
-                </Stack>
-            </Stack>
+            {multiEventType ? (
+                <EventsList eventConnections={multiEventType?.eventTypes}/>
+            ) : <></>}
             {
                 isDataUpdated && (
                     <Stack
