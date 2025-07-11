@@ -1,42 +1,78 @@
 import {closestCenter, DndContext, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
 import {horizontalListSortingStrategy, SortableContext, useSortable} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import {CSS} from "@dnd-kit/utilities";
 import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
 import {useMemo} from "react";
+import {Stack, Typography} from "@mui/joy";
+import {useRouter} from "next/navigation";
 
 type Props = {
     eventConnections: MultiEventConnection[];
 }
 
-const Card = ({ id }: { id: string }) => {
-    const { attributes, listeners, setNodeRef, transform, transition } =
-        useSortable({ id });
+type CardProps = {
+    eventTypeConnection: MultiEventConnection;
+}
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        width: 150,
-        height: 100,
-        margin: "0 8px",
-        backgroundColor: "#f0f0f0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        border: "1px solid #ccc",
-        borderRadius: 8,
-        cursor: "grab",
-        userSelect: "none",
-    };
+const Card = (props: CardProps) => {
+    const {eventTypeConnection} = props;
+    const {attributes, listeners, setNodeRef, transform, transition} =
+        useSortable(eventTypeConnection);
+    const router = useRouter();
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-            Card {id}
-        </div>
+        <Stack
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            width={'15rem'}
+            height={'15rem'}
+            direction={'column'}
+            bgcolor={'grey'}
+            // key={eventType.id}
+            component={'div'}
+            borderRadius={'8px'}
+            padding={2}
+            sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                },
+            }}
+            onClick={
+                () => {
+                    router.push('/multi-event-types/');
+                }
+            }
+            style={{
+                transform: CSS.Transform.toString(transform),
+                transition
+            }}
+        >
+            <Typography level={'h4'}>{eventTypeConnection.eventType.name}</Typography>
+            <Typography
+                sx={{
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: 3,
+                }}
+                level={'body-md'}
+            >
+                {eventTypeConnection.eventType.description}
+            </Typography>
+            <Typography level={'body-sm'} marginTop={2}>
+                {eventTypeConnection.eventType.visibility}
+            </Typography>
+            <Typography level={'body-sm'} color={'warning'} marginTop={1}>
+                {eventTypeConnection.eventType.pageUrl}
+            </Typography>
+        </Stack>
     );
 };
 
 export default function EventsList(props: Props) {
-    const { eventConnections } = props;
+    const {eventConnections} = props;
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -47,7 +83,7 @@ export default function EventsList(props: Props) {
     );
 
     const handleDragEnd = (event: any) => {
-        const { active, over } = event;
+        const {active, over} = event;
         if (active.id !== over?.id) {
             // Reorder the items
         }
@@ -69,7 +105,7 @@ export default function EventsList(props: Props) {
                 }}
             >
                 {sortedEvents.map((eventConnection) => (
-                    <Card key={eventConnection.id} id={eventConnection.id} />
+                    <Card key={eventConnection.id} eventTypeConnection={eventConnection}/>
                 ))}
             </div>
         </SortableContext>
