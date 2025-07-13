@@ -3,10 +3,11 @@ import {Button, Input, Stack, Textarea} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {EventType, MultiEventType} from "@/types";
+import {MultiEventType} from "@/types";
 import {getMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
 import EventsList from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventsList";
+import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
 
 type Props = {
     params: Promise<{
@@ -14,13 +15,11 @@ type Props = {
     }>
 }
 
-type MultiEventTypeStringKeys = Exclude<{
-    [K in keyof EventType]: EventType[K] extends string | undefined ? K : never
-}[keyof EventType], 'durations' | 'locations'>;
+type MultiEventTypeStringKeys = keyof MultiEventType
 
 export default function MultiEventTypeIndividualPage(props: Props) {
     const [multiEventType, setMultiEventType] = useState<MultiEventType | null>(null);
-    const [updatedData, setUpdatedData] = useState<Partial<EventType>>({});
+    const [updatedData, setUpdatedData] = useState<Partial<MultiEventType>>({});
 
     const router = useRouter();
 
@@ -75,7 +74,7 @@ export default function MultiEventTypeIndividualPage(props: Props) {
         return multiEventType?.[key] as string ?? '';
     }, [multiEventType, updatedData]);
 
-    const setData = useCallback((key: MultiEventTypeStringKeys, value: string) => {
+    const setData = useCallback((key: MultiEventTypeStringKeys, value: string | MultiEventConnection[]) => {
         setUpdatedData(prevState => ({
             ...prevState,
             [key]: value,
@@ -97,6 +96,15 @@ export default function MultiEventTypeIndividualPage(props: Props) {
     const handleUndoChanges = useCallback(() => {
         setUpdatedData({});
     }, []);
+
+    const eventTypeConnections = useMemo(() => {
+        if (!multiEventType) return [];
+        if (updatedData && updatedData.eventTypes) return updatedData.eventTypes as MultiEventConnection[];
+        return multiEventType.eventTypes.sort((a, b) => a.position - b.position);
+    }, [multiEventType, updatedData]);
+
+    console.log(multiEventType, 'multiEventType');
+    console.log(updatedData, 'updatedData');
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}} paddingBottom={'5rem'} position={'relative'}>
@@ -147,8 +155,13 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     }}
                 />
             </Stack>
-            {multiEventType ? (
-                <EventsList eventConnections={multiEventType?.eventTypes}/>
+            {eventTypeConnections ? (
+                <EventsList eventConnections={eventTypeConnections} setEventConnections={(connections: MultiEventConnection[]) => {
+                    setData(
+                        'eventTypes',
+                        connections
+                    )
+                }}/>
             ) : <></>}
             {
                 isDataUpdated && (

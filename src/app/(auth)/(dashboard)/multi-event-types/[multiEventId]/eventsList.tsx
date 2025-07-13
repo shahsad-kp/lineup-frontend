@@ -1,113 +1,72 @@
-import {closestCenter, DndContext, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
-import {horizontalListSortingStrategy, SortableContext, useSortable} from "@dnd-kit/sortable";
-import {CSS} from "@dnd-kit/utilities";
+'use client';
+
+import {Stack} from "@mui/joy";
+import {closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors,} from "@dnd-kit/core";
+import {restrictToHorizontalAxis} from '@dnd-kit/modifiers';
+
+import {arrayMove, horizontalListSortingStrategy, SortableContext,} from "@dnd-kit/sortable";
+
 import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
-import {useMemo} from "react";
-import {Stack, Typography} from "@mui/joy";
-import {useRouter} from "next/navigation";
+import EventCard from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventCard";
 
 type Props = {
     eventConnections: MultiEventConnection[];
-}
-
-type CardProps = {
-    eventTypeConnection: MultiEventConnection;
-}
-
-const Card = (props: CardProps) => {
-    const {eventTypeConnection} = props;
-    const {attributes, listeners, setNodeRef, transform, transition} =
-        useSortable(eventTypeConnection);
-    const router = useRouter();
-
-    return (
-        <Stack
-            ref={setNodeRef}
-            {...attributes}
-            {...listeners}
-            width={'15rem'}
-            height={'15rem'}
-            direction={'column'}
-            bgcolor={'grey'}
-            // key={eventType.id}
-            component={'div'}
-            borderRadius={'8px'}
-            padding={2}
-            sx={{
-                cursor: 'pointer',
-                '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                },
-            }}
-            onClick={
-                () => {
-                    router.push('/multi-event-types/');
-                }
-            }
-            style={{
-                transform: CSS.Transform.toString(transform),
-                transition
-            }}
-        >
-            <Typography level={'h4'}>{eventTypeConnection.eventType.name}</Typography>
-            <Typography
-                sx={{
-                    overflow: 'hidden',
-                    display: '-webkit-box',
-                    WebkitBoxOrient: 'vertical',
-                    WebkitLineClamp: 3,
-                }}
-                level={'body-md'}
-            >
-                {eventTypeConnection.eventType.description}
-            </Typography>
-            <Typography level={'body-sm'} marginTop={2}>
-                {eventTypeConnection.eventType.visibility}
-            </Typography>
-            <Typography level={'body-sm'} color={'warning'} marginTop={1}>
-                {eventTypeConnection.eventType.pageUrl}
-            </Typography>
-        </Stack>
-    );
+    setEventConnections: (connections: MultiEventConnection[]) => void;
 };
 
 export default function EventsList(props: Props) {
-    const {eventConnections} = props;
-
+    const {eventConnections, setEventConnections} = props;
     const sensors = useSensors(
         useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 5,
-            },
+            activationConstraint: {distance: 5},
         })
     );
 
-    const handleDragEnd = (event: any) => {
+    const handleDragEnd = (event: DragEndEvent) => {
         const {active, over} = event;
-        if (active.id !== over?.id) {
-            // Reorder the items
-        }
+        if (!over || active.id === over.id) return;
+
+        const oldIndex = eventConnections.findIndex(item => item.id === active.id);
+        const newIndex = eventConnections.findIndex(item => item.id === over.id);
+
+        const reordered = arrayMove(eventConnections, oldIndex, newIndex).map(
+            (item, index) => ({
+                ...item,
+                position: index, // update position field
+            })
+        );
+
+        setEventConnections(reordered);
     };
 
-    const sortedEvents = useMemo(() => {
-        return eventConnections.sort((a, b) => a.position - b.position);
-    }, [eventConnections]);
-
-    return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={eventConnections} strategy={horizontalListSortingStrategy}>
-            <div
-                style={{
-                    display: "flex",
-                    overflowX: "auto",
-                    padding: "16px",
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                }}
+    return (
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToHorizontalAxis]}
+        >
+            <SortableContext
+                items={eventConnections.map(item => item.id)}
+                strategy={horizontalListSortingStrategy}
             >
-                {sortedEvents.map((eventConnection) => (
-                    <Card key={eventConnection.id} eventTypeConnection={eventConnection}/>
-                ))}
-            </div>
-        </SortableContext>
-    </DndContext>
+
+                <Stack
+                    direction="row"
+                    gap={3}
+                    sx={{
+                        overflowX: "auto",
+                        py: 2,
+                    }}
+                >
+                    {eventConnections.map(eventConnection => (
+                        <EventCard
+                            key={eventConnection.id}
+                            eventTypeConnection={eventConnection}
+                        />
+                    ))}
+                </Stack>
+            </SortableContext>
+        </DndContext>
+    );
 }
