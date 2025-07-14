@@ -6,6 +6,12 @@ const getSelfMultiEventTypes = async () => {
     return result.data
 }
 
+const getMultiEventType = (multiEventTypeId: string) => {
+    return privateInstance.get<MultiEventType>(`/multi-event-types/${multiEventTypeId}/`)
+        .then(result => result.data);
+}
+
 export {
-    getSelfMultiEventTypes
+    getSelfMultiEventTypes,
+    getMultiEventType
 }
