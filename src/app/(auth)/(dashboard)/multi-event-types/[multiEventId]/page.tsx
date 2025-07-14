@@ -4,7 +4,7 @@ import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {MultiEventType} from "@/types";
-import {getMultiEventType} from "@/services/api";
+import {getMultiEventType, updateEventType, updateMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
 import EventsList from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventsList";
 import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
@@ -103,8 +103,18 @@ export default function MultiEventTypeIndividualPage(props: Props) {
         return multiEventType.eventTypes.sort((a, b) => a.position - b.position);
     }, [multiEventType, updatedData]);
 
-    console.log(multiEventType, 'multiEventType');
-    console.log(updatedData, 'updatedData');
+    const saveChanges = useCallback(() => {
+        if (multiEventType) {
+            if (multiEventType.id === 'new') {
+                // Create new multi event type
+            }
+            else{
+                updateMultiEventType(
+                    multiEventType.id
+                )
+            }
+        }
+    }, [updatedData]);
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}} paddingBottom={'5rem'} position={'relative'}>
