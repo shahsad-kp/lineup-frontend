@@ -1,5 +1,5 @@
 import {privateInstance} from "@/services/api/instance";
-import {MultiEventType, UpdateMultiEventTypeData} from "@/types";
+import {CreateMultiEventTypeData, MultiEventType, UpdateMultiEventTypeData} from "@/types";
 
 const getSelfMultiEventTypes = async () => {
     const result = await privateInstance.get<MultiEventType[]>('/multi-event-types/');
@@ -16,8 +16,14 @@ const updateMultiEventType = async (multiEventTypeId: string, updateMultiEventTy
     return result.data;
 }
 
+const createMultiEventType = async (data: CreateMultiEventTypeData) => {
+    const result = await privateInstance.post<MultiEventType>(`/multi-event-types/`, data);
+    return result.data;
+}
+
 export {
     getSelfMultiEventTypes,
     getMultiEventType,
-    updateMultiEventType
+    updateMultiEventType,
+    createMultiEventType
 }

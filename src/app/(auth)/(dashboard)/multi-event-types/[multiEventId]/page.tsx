@@ -4,10 +4,11 @@ import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {MultiEventType} from "@/types";
-import {getMultiEventType, updateEventType, updateMultiEventType} from "@/services/api";
+import {getMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
 import EventsList from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventsList";
 import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
+import {createMultiEventType} from "@/services/api/multiEventTypes";
 
 type Props = {
     params: Promise<{
@@ -33,7 +34,7 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     description: '',
                     visibility: 'public',
                     pageUrl: '',
-                    eventTypes: [
+                    eventTypeConnections: [
                         {
                             id: 'new',
                             eventType: {
@@ -99,22 +100,24 @@ export default function MultiEventTypeIndividualPage(props: Props) {
 
     const eventTypeConnections = useMemo(() => {
         if (!multiEventType) return [];
-        if (updatedData && updatedData.eventTypes) return updatedData.eventTypes as MultiEventConnection[];
-        return multiEventType.eventTypes.sort((a, b) => a.position - b.position);
+        if (updatedData && updatedData.eventTypeConnections) return updatedData.eventTypeConnections as MultiEventConnection[];
+        return multiEventType.eventTypeConnections.sort((a, b) => a.position - b.position);
     }, [multiEventType, updatedData]);
 
     const saveChanges = useCallback(() => {
         if (multiEventType) {
             if (multiEventType.id === 'new') {
-                // Create new multi event type
-            }
-            else{
-                updateMultiEventType(
-                    multiEventType.id
-                )
+                createMultiEventType({
+                    name: getData('name'),
+                    description: getData('description'),
+                    visibility: multiEventType.visibility,
+                    eventTypeConnections: eventTypeConnections,
+                }).then((data) => {
+                    router.push(`/multi-event-types/${data.id}`);
+                })
             }
         }
-    }, [updatedData]);
+    }, [eventTypeConnections, getData, multiEventType, router]);
 
     return (
         <Stack spacing={2} padding={2} sx={{width: '100%'}} paddingBottom={'5rem'} position={'relative'}>
@@ -165,14 +168,18 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     }}
                 />
             </Stack>
-            {eventTypeConnections ? (
-                <EventsList eventConnections={eventTypeConnections} setEventConnections={(connections: MultiEventConnection[]) => {
-                    setData(
-                        'eventTypes',
-                        connections
-                    )
-                }}/>
-            ) : <></>}
+            {eventTypeConnections ?
+                (
+                    <EventsList
+                        eventConnections={eventTypeConnections}
+                        setEventConnections={(connections: MultiEventConnection[]) => {
+                            setData('eventTypes', connections);
+                        }}
+                    />
+                )
+                :
+                <></>
+            }
             {
                 isDataUpdated && (
                     <Stack
@@ -186,8 +193,7 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                         <Button variant={'plain'} onClick={handleUndoChanges}>
                             Undo Changes
                         </Button>
-                        <Button onClick={() => {
-                        }}>
+                        <Button onClick={() => saveChanges()}>
                             Save Changes
                         </Button>
                     </Stack>

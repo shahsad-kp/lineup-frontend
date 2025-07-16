@@ -6,5 +6,5 @@ export type MultiEventType = {
     description: string;
     visibility: 'public' | 'private' | 'unlisted';
     pageUrl: string;
-    eventTypes: MultiEventConnection[];
+    eventTypeConnections: MultiEventConnection[];
 }
