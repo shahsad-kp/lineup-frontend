@@ -173,7 +173,7 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     <EventsList
                         eventConnections={eventTypeConnections}
                         setEventConnections={(connections: MultiEventConnection[]) => {
-                            setData('eventTypes', connections);
+                            setData('eventTypeConnections', connections);
                         }}
                     />
                 )
