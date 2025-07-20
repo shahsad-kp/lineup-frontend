@@ -49,7 +49,7 @@ export default function MultiEventTypeListPage() {
                         }
                     >
                         <Typography level={'h4'}>{eventType.name}</Typography>
-                        <Typography>{eventType.eventTypes.length} event{eventType.eventTypes.length <= 1 ? '' : 's'}</Typography>
+                        <Typography>{eventType.eventTypeConnections.length} event{eventType.eventTypeConnections.length <= 1 ? '' : 's'}</Typography>
                         <Typography
                             sx={{
                                 overflow: 'hidden',

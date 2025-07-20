@@ -55,7 +55,8 @@ export default function MultiEventTypeIndividualPage(props: Props) {
 
             try {
                 return await getMultiEventType(multiEventId);
-            } catch (error) {
+            }
+            catch (error) {
                 throw error;
             }
         }
