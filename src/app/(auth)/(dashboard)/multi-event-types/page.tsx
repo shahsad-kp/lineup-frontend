@@ -26,6 +26,31 @@ export default function MultiEventTypeListPage() {
                 </Button>
             </Stack>
             <Grid container gap={2}>
+                <Stack
+                    width={'15rem'}
+                    height={'15rem'}
+                    direction={'column'}
+                    bgcolor={'grey'}
+                    component={'div'}
+                    borderRadius={'8px'}
+                    borderColor={'black'}
+                    padding={2}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    sx={{
+                        cursor: 'pointer',
+                        '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        },
+                    }}
+                    onClick={
+                        () => {
+                            router.push('/multi-event-types/new/');
+                        }
+                    }
+                >
+                    <AddIcon/>
+                </Stack>
                 {eventTypes.map((eventType, index) => (
                     <Stack
                         width={'15rem'}
@@ -69,28 +94,6 @@ export default function MultiEventTypeListPage() {
                         </Typography>
                     </Stack>
                 ))}
-                <Stack
-                    width={'15rem'}
-                    height={'15rem'}
-                    direction={'column'}
-                    bgcolor={'transparent'}
-                    component={'div'}
-                    borderRadius={'8px'}
-                    borderColor={'black'}
-                    padding={2}
-                    sx={{
-                        cursor: 'pointer',
-                        '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                    }}
-                    onClick={
-                        () => {
-                            router.push('/multi-event-types/new/');
-                        }
-                    }
-                >
-                </Stack>
             </Grid>
         </Stack>
     );
