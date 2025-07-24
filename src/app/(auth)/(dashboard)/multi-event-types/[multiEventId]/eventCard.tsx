@@ -10,7 +10,7 @@ type CardProps = {
     eventTypeConnection: MultiEventConnection;
 };
 
-export default function EventCard ({eventTypeConnection}: CardProps) {
+export default function EventCard({eventTypeConnection}: CardProps) {
     const {
         attributes,
         listeners,
@@ -67,6 +67,9 @@ export default function EventCard ({eventTypeConnection}: CardProps) {
                     "&:hover": {
                         backgroundColor: "rgba(255, 255, 255, 0.2)",
                     },
+                }}
+                onClick={() => {
+                    router.push(`/event-types/${eventTypeConnection.eventType.id}`);
                 }}
             >
                 <Typography level="h4">{eventTypeConnection.eventType.name}</Typography>

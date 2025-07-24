@@ -30,7 +30,8 @@ import {
 
 import {
     getSelfMultiEventTypes,
-    getMultiEventType
+    getMultiEventType,
+    updateMultiEventType
 } from "@/services/api/multiEventTypes";
 
 export {
@@ -57,5 +58,6 @@ export {
     updateEventType,
     createEventType,
     getSelfMultiEventTypes,
-    getMultiEventType
+    getMultiEventType,
+    updateMultiEventType,
 }
