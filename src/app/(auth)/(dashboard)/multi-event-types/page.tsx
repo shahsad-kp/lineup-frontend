@@ -1,5 +1,5 @@
 'use client';
-import {Button, Grid, Stack} from "@mui/joy";
+import {Grid, Stack} from "@mui/joy";
 import Typography from "@mui/joy/Typography";
 import {useEffect, useState} from "react";
 import {getSelfMultiEventTypes} from "@/services/api";
@@ -19,11 +19,6 @@ export default function MultiEventTypeListPage() {
         <Stack spacing={2} padding={2} sx={{width: '100%'}} position={'relative'} height={'100%'}>
             <Stack direction={'row'} width={'100%'} justifyContent={'space-between'} alignItems={'center'}>
                 <Typography level={'h3'}>Multi Event Types</Typography>
-                <Button variant={'solid'} onClick={() => {
-                    router.push('/multi-event-types/new')
-                }}>
-                    <AddIcon/>
-                </Button>
             </Stack>
             <Grid container gap={2}>
                 <Stack

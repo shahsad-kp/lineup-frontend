@@ -4,7 +4,7 @@ import Typography from "@mui/joy/Typography";
 import * as React from "react";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {MultiEventType} from "@/types";
-import {getMultiEventType} from "@/services/api";
+import {getMultiEventType, updateMultiEventType} from "@/services/api";
 import {useRouter} from "next/navigation";
 import EventsList from "@/app/(auth)/(dashboard)/multi-event-types/[multiEventId]/eventsList";
 import {MultiEventConnection} from "@/types/multiEventTypes/multiEventConnection";
@@ -35,20 +35,20 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     visibility: 'public',
                     pageUrl: '',
                     eventTypeConnections: [
-                        {
-                            id: 'new',
-                            eventType: {
-                                id: 'new',
-                                name: '',
-                                description: '',
-                                visibility: 'public',
-                                pageUrl: '',
-                                durations: [],
-                                locations: [],
-                            },
-                            position: 0,
-                            bufferBefore: 0
-                        }
+                        // {
+                        //     id: 'new',
+                        //     eventType: {
+                        //         id: 'new',
+                        //         name: '',
+                        //         description: '',
+                        //         visibility: 'public',
+                        //         pageUrl: '',
+                        //         durations: [],
+                        //         locations: [],
+                        //     },
+                        //     position: 0,
+                        //     bufferBefore: 0
+                        // }
                     ]
                 };
             }
@@ -114,7 +114,22 @@ export default function MultiEventTypeIndividualPage(props: Props) {
                     visibility: multiEventType.visibility,
                     eventTypeConnections: eventTypeConnections,
                 }).then((data) => {
-                    router.push(`/multi-event-types/${data.id}`);
+                    router.replace(`/multi-event-types/${data.id}`);
+                })
+            }
+            else{
+                updateMultiEventType(
+                    multiEventType.id,
+                    {
+                        id: multiEventType.id,
+                        name: getData('name'),
+                        description: getData('description'),
+                        eventTypeConnections: [],
+                        visibility: 'public',
+                        pageUrl: ''
+                    }
+                ).then((data) => {
+                    setMultiEventType(data);
                 })
             }
         }
@@ -125,7 +140,7 @@ export default function MultiEventTypeIndividualPage(props: Props) {
             <Typography level={'h3'}>MULTI EVENT TYPE</Typography>
             <Stack direction={'column'}>
                 <Input
-                    placeholder={'name' in updatedData || multiEventType?.id === 'new' ? 'Event type title...' : ''}
+                    placeholder={'name' in updatedData || multiEventType?.id === 'new' ? 'Title...' : ''}
                     value={getData('name')}
                     sx={{
                         marginBottom: '1rem',
